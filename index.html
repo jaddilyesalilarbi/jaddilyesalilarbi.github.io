@@ -1,1 +1,110 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Portfolio de Jadd-Ilyes Ali Larbi, ingénieur mécanique spécialisé en structures composites.">
+  <title>Jadd-Ilyes Ali Larbi — Ingénieur structures composites</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#accueil" aria-label="Retour à l'accueil">JIAL<span>.</span></a>
+    <nav aria-label="Navigation principale">
+      <a href="#expertise">Expertise</a>
+      <a href="#experiences">Parcours</a>
+      <a href="#projets">Projets</a>
+      <a class="nav-contact" href="#contact">Me contacter</a>
+    </nav>
+  </header>
 
+  <main>
+    <section id="accueil" class="hero section-shell">
+      <div class="hero-copy">
+        <p class="kicker">Ingénierie · composites · structures</p>
+        <h1>Concevoir des structures plus légères, plus fiables, plus lisibles.</h1>
+        <p class="hero-intro">Je suis Jadd-Ilyes Ali Larbi, ingénieur mécanique spécialisé dans l’analyse, la conception et la validation de structures composites.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#projets">Explorer mes projets</a>
+          <a class="button button-secondary" href="#contact">Parlons d’un besoin</a>
+        </div>
+      </div>
+      <div class="hero-graphic" aria-label="Illustration abstraite d'une structure composite">
+        <div class="fiber fiber-one"></div>
+        <div class="fiber fiber-two"></div>
+        <div class="fiber fiber-three"></div>
+        <div class="hero-note"><span>01</span><strong>Du problème</strong><small>à la solution vérifiée</small></div>
+      </div>
+    </section>
+
+    <section id="expertise" class="section-shell section-block">
+      <div class="section-heading">
+        <p class="kicker">Ce que je sais faire</p>
+        <h2>Une expertise qui se lit par les problèmes résolus.</h2>
+      </div>
+      <div class="expertise-layout">
+        <div class="skill-list" role="list" aria-label="Filtres de compétences">
+          <button class="skill active" data-skill="all" aria-pressed="true">Toutes les compétences <span>06</span></button>
+          <button class="skill" data-skill="composites" aria-pressed="false">Structures composites <span>04</span></button>
+          <button class="skill" data-skill="calcul" aria-pressed="false">Calcul & dimensionnement <span>03</span></button>
+          <button class="skill" data-skill="essais" aria-pressed="false">Essais & validation <span>02</span></button>
+          <button class="skill" data-skill="industrialisation" aria-pressed="false">Industrialisation <span>02</span></button>
+          <button class="skill" data-skill="pilotage" aria-pressed="false">Pilotage technique <span>02</span></button>
+        </div>
+        <div class="skill-detail" id="skill-detail">
+          <p class="detail-label">Vue générale</p>
+          <h3>Sélectionne une compétence pour voir où elle s’exprime.</h3>
+          <p>Le site final reliera ici chaque compétence aux expériences, sous-projets, outils et résultats correspondants.</p>
+          <div class="detail-grid"><span>Conception</span><span>Analyse</span><span>Validation</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="experiences" class="section-shell section-block dark-section">
+      <div class="section-heading section-heading-light">
+        <p class="kicker">Parcours</p>
+        <h2>Des expériences lisibles en surface, détaillées à la demande.</h2>
+      </div>
+      <div class="experience-list">
+        <article class="experience" data-skills="composites calcul essais">
+          <button class="experience-toggle" aria-expanded="false">
+            <span><small>2024 — Aujourd’hui</small><strong>Ingénieur structures composites</strong><em>Conception, calcul et validation de structures techniques</em></span>
+            <span class="toggle-icon">+</span>
+          </button>
+          <div class="experience-body"><p>Une expérience principale pourra regrouper ici plusieurs mini-expériences, chacune reliée aux compétences sélectionnées.</p><ul><li>Dimensionnement et analyse de structures composites</li><li>Corrélation entre calculs, essais et comportement réel</li><li>Échanges avec conception, production et validation</li></ul></div>
+        </article>
+        <article class="experience" data-skills="calcul industrialisation pilotage">
+          <button class="experience-toggle" aria-expanded="false">
+            <span><small>2021 — 2024</small><strong>Ingénieur mécanique / calcul</strong><em>Résolution de problèmes et accompagnement industriel</em></span>
+            <span class="toggle-icon">+</span>
+          </button>
+          <div class="experience-body"><p>Cette carte accueillera une expérience complète et ses réalisations les plus significatives.</p><ul><li>Modélisation et interprétation des résultats</li><li>Revue technique et recommandations de conception</li><li>Support à la mise en production</li></ul></div>
+        </article>
+        <article class="experience" data-skills="composites essais pilotage">
+          <button class="experience-toggle" aria-expanded="false">
+            <span><small>Formation & projets</small><strong>Projets académiques et personnels</strong><em>Apprendre, expérimenter, transmettre</em></span>
+            <span class="toggle-icon">+</span>
+          </button>
+          <div class="experience-body"><p>Un espace pour valoriser les projets qui montrent ta curiosité, ton autonomie ou ta capacité à aller au fond d’un sujet.</p></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="projets" class="section-shell section-block">
+      <div class="section-heading split-heading"><div><p class="kicker">Portfolio</p><h2>Quelques terrains de jeu.</h2></div><p>Les projets finaux seront présentés par contexte, défi, intervention et résultat — pas seulement par intitulé de poste.</p></div>
+      <div class="project-grid">
+        <article class="project-card project-featured"><p class="project-type">Étude de structure</p><h3>Alléger sans perdre la confiance</h3><p>Une fiche projet détaillée avec visuels, hypothèses de calcul, arbitrages et résultats.</p><a href="#contact">Voir le projet à venir <span>↗</span></a></article>
+        <article class="project-card"><p class="project-type">Validation</p><h3>Du modèle à l’essai</h3><p>Corréler une prédiction numérique avec le comportement observé.</p><a href="#contact">Bientôt disponible <span>↗</span></a></article>
+        <article class="project-card"><p class="project-type">Industrialisation</p><h3>Rendre la solution fabricable</h3><p>Faire dialoguer performance mécanique, procédé et réalité terrain.</p><a href="#contact">Bientôt disponible <span>↗</span></a></article>
+      </div>
+    </section>
+
+    <section id="contact" class="contact-section">
+      <div class="section-shell contact-inner"><div><p class="kicker">Contact</p><h2>Un problème technique à clarifier ?</h2><p>Le site final pourra accueillir une demande de mission, une opportunité ou une simple prise de contact.</p></div><div class="contact-actions"><a class="button button-light" href="mailto:contact@example.com">Écrire un email</a><a class="text-link" href="#accueil">Retour en haut ↑</a></div></div>
+    </section>
+  </main>
+
+  <footer class="site-footer section-shell"><span>Jadd-Ilyes Ali Larbi</span><span>Site personnel — première version</span></footer>
+</body>
+</html>
