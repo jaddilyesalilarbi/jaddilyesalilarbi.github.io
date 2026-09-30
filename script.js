@@ -52,52 +52,79 @@ function renderExperiences() {
   }
 
   portfolioData.experiences.forEach(exp => {
+    // Create article with class 'experience'
     const article = document.createElement('article');
-    article.className = 'experience-card';
-    article.setAttribute('data-skills', exp.associatedSkills.join(','));
+    article.className = 'experience';
+    // Set data-skills to space-separated list of skill IDs
+    article.setAttribute('data-skills', exp.associatedSkills.join(' '));
 
-    // Header with company, role, period
-    const header = document.createElement('div');
-    header.className = 'experience-header';
+    // Create toggle button
+    const toggleButton = document.createElement('button');
+    toggleButton.className = 'experience-toggle';
+    toggleButton.setAttribute('aria-expanded', 'false');
 
-    const company = document.createElement('h3');
-    company.className = 'experience-company';
-    company.textContent = exp.company;
+    // Create wrapper span for text content
+    const textWrapper = document.createElement('span');
 
-    const role = document.createElement('p');
-    role.className = 'experience-role';
-    role.textContent = exp.role;
+    // Small: period.start + ' — ' + period.end
+    const smallText = document.createElement('small');
+    smallText.textContent = `${exp.period.start} — ${exp.period.end}`;
 
-    const period = document.createElement('p');
-    period.className = 'experience-period';
-    period.textContent = `${exp.period.start} – ${exp.period.end}`;
+    // Strong: role
+    const strongText = document.createElement('strong');
+    strongText.textContent = exp.role;
 
-    header.appendChild(company);
-    header.appendChild(role);
-    header.appendChild(period);
+    // Em: company (not styled italic, just semantic)
+    const emText = document.createElement('em');
+    emText.textContent = exp.company;
 
-    // Description
-    const description = document.createElement('p');
-    description.className = 'experience-description';
-    description.textContent = exp.description;
+    textWrapper.appendChild(smallText);
+    textWrapper.appendChild(strongText);
+    textWrapper.appendChild(emText);
 
-    // Associated skills badges
-    const skillBadges = document.createElement('div');
-    skillBadges.className = 'skill-badges';
-    exp.associatedSkills.forEach(skillId => {
-      const skill = portfolioData.skills.find(s => s.id === skillId);
-      if (skill) {
-        const badge = document.createElement('span');
-        badge.className = 'skill-badge';
-        badge.textContent = skill.name;
-        skillBadges.appendChild(badge);
-      }
+    // Create toggle icon span
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'toggle-icon';
+    iconSpan.textContent = '+';
+
+    toggleButton.appendChild(textWrapper);
+    toggleButton.appendChild(iconSpan);
+
+    // Create expandable body div
+    const body = document.createElement('div');
+    body.className = 'experience-body';
+
+    // Description paragraph
+    const descriptionPara = document.createElement('p');
+    descriptionPara.textContent = exp.description;
+    body.appendChild(descriptionPara);
+
+    // Highlights as ul
+    if (exp.highlights && exp.highlights.length > 0) {
+      const highlightsList = document.createElement('ul');
+      exp.highlights.forEach(highlight => {
+        const li = document.createElement('li');
+        const strong = document.createElement('strong');
+        strong.textContent = highlight.title + ': ';
+        li.appendChild(strong);
+        li.appendChild(document.createTextNode(highlight.details));
+        highlightsList.appendChild(li);
+      });
+      body.appendChild(highlightsList);
+    }
+
+    // Add toggle button and body to article
+    article.appendChild(toggleButton);
+    article.appendChild(body);
+
+    // Add click listener to toggle button
+    toggleButton.addEventListener('click', () => {
+      const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+      toggleButton.setAttribute('aria-expanded', !isExpanded);
+      article.classList.toggle('open');
     });
 
-    article.appendChild(header);
-    article.appendChild(description);
-    article.appendChild(skillBadges);
-
+    // Append article to container
     container.appendChild(article);
   });
 }
