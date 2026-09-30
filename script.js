@@ -217,6 +217,69 @@ function updateSkillDetail(skillId) {
   }
 }
 
+// Render projects as dynamic cards
+function renderProjects() {
+  const container = document.getElementById('projects-container');
+
+  if (!container || typeof portfolioData === 'undefined') {
+    return;
+  }
+
+  portfolioData.projects.forEach((project, index) => {
+    // Create article with project-card class
+    const article = document.createElement('article');
+    article.className = 'project-card';
+
+    // Add project-featured class for first project
+    if (index === 0) {
+      article.classList.add('project-featured');
+    }
+
+    // Create project type paragraph
+    const typeP = document.createElement('p');
+    typeP.className = 'project-type';
+    typeP.textContent = project.category;
+
+    // Create title heading
+    const titleH3 = document.createElement('h3');
+    titleH3.textContent = project.title;
+
+    // Create context paragraph (truncate to ~150 chars)
+    const contextP = document.createElement('p');
+    let contextText = project.context;
+    if (contextText.length > 150) {
+      contextText = contextText.substring(0, 150) + '…';
+    }
+    contextP.textContent = contextText;
+
+    // Create result paragraph (first quantified result)
+    const resultP = document.createElement('p');
+    if (project.results && project.results.quantified && project.results.quantified.length > 0) {
+      resultP.textContent = project.results.quantified[0];
+    }
+
+    // Create "View project" link
+    const link = document.createElement('a');
+    link.href = '#contact';
+    link.textContent = 'View project ';
+
+    // Add arrow span
+    const arrowSpan = document.createElement('span');
+    arrowSpan.textContent = '↗';
+    link.appendChild(arrowSpan);
+
+    // Append all elements to article
+    article.appendChild(typeP);
+    article.appendChild(titleH3);
+    article.appendChild(contextP);
+    article.appendChild(resultP);
+    article.appendChild(link);
+
+    // Append article to container
+    container.appendChild(article);
+  });
+}
+
 // Initialize hero section on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
   setText('#hero-title', 'Design structures lighter, more reliable, more readable.');
@@ -229,6 +292,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Render experiences with skill data
   renderExperiences();
+
+  // Render projects
+  renderProjects();
 
   // Wire up skill filter event listeners
   document.querySelectorAll('.skill').forEach(button => {
