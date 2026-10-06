@@ -1,5 +1,7 @@
 # Jadd-Ilyes Ali Larbi — Engineering Portfolio
 
+> **Current version (4 October 2026):** run `node build.cjs` and `node verify.cjs`. Publish **only `dist/`**, never the repository root. The active sources are `content/site.cjs`, `build.cjs`, `site.css` and `site.js`. Confidential legacy material is archived outside this repository. See [the current editing guide](docs/CURRENT-VERSION.md). Everything below is historical documentation of the original single-page site; its deployment directions and performance claims do not apply to the current version.
+
 **A complete, data-driven portfolio for mechanical engineers specializing in structural and composite engineering.**
 
 ---

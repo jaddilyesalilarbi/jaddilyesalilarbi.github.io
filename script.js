@@ -147,6 +147,12 @@ function renderProjects() {
       article.classList.add('project-featured');
     }
 
+    const image = document.createElement('img');
+    image.className = 'project-image';
+    image.src = ['assets/solar-boat.png', 'assets/composite-fea.png', 'assets/fuel-cell.png'][index] || 'assets/key-schematic.png';
+    image.alt = `${project.title} — project visual`;
+    article.appendChild(image);
+
     // Create project type paragraph
     const typeP = document.createElement('p');
     typeP.className = 'project-type';
@@ -305,4 +311,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize detail panel to "all"
   updateSkillDetail('all');
+
+  // Reveal sections only when they enter the viewport. This keeps the motion
+  // purposeful and lets the page remain fully usable without animation.
+  const revealSections = document.querySelectorAll('.reveal-section');
+  if ('IntersectionObserver' in window) {
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.14 });
+    revealSections.forEach(section => revealObserver.observe(section));
+  } else {
+    revealSections.forEach(section => section.classList.add('is-visible'));
+  }
 });
