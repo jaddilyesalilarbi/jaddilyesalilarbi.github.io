@@ -6,10 +6,41 @@ const vm = require('node:vm');
 const { pathToFileURL } = require('node:url');
 const data = require('./content/site.cjs');
 const root = __dirname;
-const files = ['index.html', '404.html', ...['work','expertise','services','about','contact'].map(p => `${p}/index.html`), ...data.projects.map(p => `work/${p.id}/index.html`)];
+assert(fs.existsSync(path.join(root, 'resume/index.html')), 'Missing generated Resume route');
+const files = ['index.html', '404.html', ...['work','expertise','services','about','resume','contact'].map(p => `${p}/index.html`), ...data.projects.map(p => `work/${p.id}/index.html`)];
 const ids = items => new Set(items.map(i => i.id));
 assert.equal(ids(data.projects).size, 5);
 assert.equal(ids(data.expertise).size, 5);
+assert(data.resumePage, 'Missing structured Resume content');
+const resumeSkillIds = ids(data.resumePage.skills);
+assert.equal(resumeSkillIds.size, 6, 'Resume must expose exactly six unique skills');
+assert.deepEqual(data.resumePage.skills.map(skill => skill.id), ['mechanical-design', 'systems-integration', 'structural-fea', 'manufacturing-assembly', 'testing-instrumentation', 'leadership-teaching']);
+const resumeMissions = data.resumePage.experiences.flatMap(experience => experience.missions);
+assert.equal(ids(resumeMissions).size, resumeMissions.length, 'Resume mission IDs must be unique');
+for (const mission of resumeMissions) {
+  assert(['summary', 'detail'].includes(mission.visibility), `Invalid Resume visibility: ${mission.id}`);
+  assert(mission.tags.length > 0, `Resume mission needs at least one skill: ${mission.id}`);
+  mission.tags.forEach(tag => assert(resumeSkillIds.has(tag), `Unknown Resume skill tag ${tag}: ${mission.id}`));
+}
+assert.deepEqual(Object.fromEntries(data.resumePage.skills.map(skill => [skill.id, resumeMissions.filter(mission => mission.tags.includes(skill.id)).length])), {
+  'mechanical-design': 11,
+  'systems-integration': 15,
+  'structural-fea': 11,
+  'manufacturing-assembly': 10,
+  'testing-instrumentation': 8,
+  'leadership-teaching': 6
+});
+for (const experience of data.resumePage.experiences) {
+  assert(experience.missions.some(mission => mission.visibility === 'summary'), `Resume experience needs summary missions: ${experience.id}`);
+  assert(experience.missions.some(mission => mission.visibility === 'detail'), `Resume experience needs detail missions: ${experience.id}`);
+  (experience.relatedProjects || []).forEach(project => {
+    assert(ids(data.projects).has(project.id), `Unknown Resume project: ${project.id}`);
+    assert(project.label, `Resume project link needs an explicit label: ${project.id}`);
+  });
+}
+assert.equal(data.resumePage.education.length, 2);
+assert.equal(data.resumePage.distinction, 'Ranked 1st out of approximately 400 students in Mechanical Physics.');
+assert.deepEqual(data.resumePage.toolset.map(group => group.name), ['CAD / CAE', 'Structural', 'Testing', 'Manufacturing', 'Engineering tools']);
 for (const e of data.expertise) for (const proof of e.evidence) {
   assert(proof.project ? ids(data.projects).has(proof.project) : ids(data.experience).has(proof.experience));
 }
@@ -28,6 +59,7 @@ for (const file of files) {
   assert(!/being prepared|to be added|to be documented|in development|Visual in preparation|related projects|Four connected disciplines/i.test(html), `Editorial placeholder: ${file}`);
   assert(!/Structural Engineering|Validation &amp; Testing|Mechanical Development/.test(html), `Outdated expertise label: ${file}`);
   assert(html.includes('header-cv'));
+  assert(html.includes('>Resume</a>'), `Resume navigation missing: ${file}`);
   assert(!html.includes('Request CV'));
   for (const match of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
     const ref = match[1];
@@ -38,6 +70,42 @@ for (const file of files) {
     if (anchor) assert(fs.readFileSync(destination, 'utf8').includes(`id="${anchor}"`), `Missing anchor ${ref}`);
   }
 }
+const resumePage = fs.readFileSync(path.join(root, 'resume/index.html'), 'utf8');
+const siteCss = fs.readFileSync(path.join(root, 'site.css'), 'utf8');
+assert(resumePage.includes('<h1>Resume</h1>'));
+assert(resumePage.includes('Mechanical engineering across the hardware-development loop.'));
+assert(resumePage.includes('Select a skill to highlight where I applied it. Expand an experience to see the full detail.'));
+assert.equal((resumePage.match(/data-skill="/g) || []).length, 6, 'Resume must render six skill controls');
+for (const skill of data.resumePage.skills) {
+  const count = resumeMissions.filter(mission => mission.tags.includes(skill.id)).length;
+  assert(resumePage.includes(`data-skill="${skill.id}"`), `Missing Resume skill control: ${skill.id}`);
+  assert(new RegExp(`<button[^>]+data-skill="${skill.id}"[\\s\\S]*?<span class="resume-skill-count">${count}</span>[\\s\\S]*?</button>`).test(resumePage), `Incorrect derived Resume skill count: ${skill.id}`);
+}
+for (const mission of resumeMissions) {
+  assert(resumePage.includes(`id="${mission.id}"`), `Missing Resume mission: ${mission.id}`);
+  assert(resumePage.includes(`data-visibility="${mission.visibility}"`), `Missing Resume visibility: ${mission.id}`);
+}
+for (const experience of data.resumePage.experiences) {
+  assert(resumePage.includes(`id="${experience.id}"`), `Missing Resume experience: ${experience.id}`);
+  for (const project of experience.relatedProjects || []) {
+    assert(resumePage.includes(`href="../work/${project.id}/index.html"`), `Missing Resume related project link: ${project.id}`);
+    assert(resumePage.includes(`>${project.label}</a>`), `Incorrect Resume project label: ${project.id}`);
+  }
+}
+assert(resumePage.includes('>Download CV</a>'));
+assert(resumePage.includes(`href="../${data.person.resume}"`));
+assert(resumePage.includes(`href="${data.person.linkedin}"`));
+assert(resumePage.includes('href="../contact/index.html"'));
+assert(!/84%|range-extender power|battery capacit|Navier safety factor|confidential load|internal test value/i.test(resumePage), 'Restricted Resume value leaked into public copy');
+assert(siteCss.includes(':focus-visible{outline:3px'), 'Visible keyboard focus styling must remain available');
+assert(siteCss.includes('@media(prefers-reduced-motion:reduce)'), 'Reduced-motion support must remain available');
+assert(siteCss.includes('.resume-mission.is-muted{opacity:.7}'), 'Muted Resume missions must retain readable contrast');
+assert(resumePage.includes('<p class="resume-instruction" hidden>'), 'Interactive Resume instruction must stay hidden without JavaScript');
+assert(resumePage.includes('<aside class="resume-skills" aria-labelledby="resume-skills-title" hidden>'), 'Inert Resume skill controls must stay hidden without JavaScript');
+const aboutResume = fs.readFileSync(path.join(root, 'about/index.html'), 'utf8');
+assert(aboutResume.includes('Explore my complete experience and filter it by engineering skill.'));
+assert(aboutResume.includes('>View interactive resume</a>'));
+assert(aboutResume.includes('>Get CV</a>'));
 const home = fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert(home.includes('Mechanical engineering<br class="desktop-break"> from design to testing.'));
 assert(home.includes('<h2>My Work</h2>'));
@@ -419,7 +487,7 @@ console.log(`PASS: ${files.length} pages, local links, anchors, metadata, data r
 if (process.argv.includes('--browser')) {
   (async () => {
     const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
-    const browser = await chromium.launch({ channel: 'msedge', headless: true });
+    const browser = await chromium.launch(process.env.BROWSER_EXECUTABLE ? { executablePath: process.env.BROWSER_EXECUTABLE, headless: true } : { channel: 'msedge', headless: true });
     const page = await browser.newPage();
     const errors = [];
     page.on('pageerror', err => errors.push(err.message));
@@ -448,6 +516,60 @@ if (process.argv.includes('--browser')) {
     await page.locator('[data-filter="all"]').click();
     assert.equal(await page.locator('.project-row:visible').count(), 5);
     await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.goto(pathToFileURL(path.join(root, 'resume/index.html')).href);
+    assert.equal(await page.locator('[data-skill]').count(), 6);
+    assert.equal(await page.locator('[data-visibility="detail"]:visible').count(), 0, 'Resume detail missions must start collapsed with JavaScript');
+    assert.equal(await page.locator('[data-expand-experience]:visible').count(), 3);
+    const structuralSkill = page.locator('[data-skill="structural-fea"]');
+    await structuralSkill.click();
+    assert.equal(await structuralSkill.getAttribute('aria-pressed'), 'true');
+    assert.equal(await page.locator('[data-mission].is-match').count(), 11);
+    assert.equal(await page.locator('[data-mission].is-muted').count(), resumeMissions.length - 11);
+    assert(await page.locator('#navier-composite-verification').isVisible(), 'A matching detail mission must be revealed by the filter');
+    assert(await page.locator('#navier-hardware-ownership').isVisible(), 'A non-matching summary mission must remain visible');
+    assert((await page.locator('.resume-filter-status').textContent()).includes('11 relevant missions'));
+    assert(await page.locator('[data-clear-resume-filter]').isVisible());
+    await structuralSkill.click();
+    assert.equal(await structuralSkill.getAttribute('aria-pressed'), 'false');
+    assert.equal(await page.locator('[data-mission].is-match').count(), 0);
+    assert.equal(await page.locator('[data-visibility="detail"]:visible').count(), 0);
+    const navierExpand = page.locator('#resume-navier [data-expand-experience]');
+    await navierExpand.click();
+    assert.equal(await navierExpand.getAttribute('aria-expanded'), 'true');
+    assert.equal((await navierExpand.textContent()).trim(), 'Show less');
+    assert.equal(await page.locator('#resume-navier [data-visibility="detail"]:visible').count(), 9);
+    await navierExpand.click();
+    assert.equal(await navierExpand.getAttribute('aria-expanded'), 'false');
+    assert.equal((await navierExpand.textContent()).trim(), 'Show more');
+    await page.locator('[data-skill="testing-instrumentation"]').click();
+    await page.locator('[data-clear-resume-filter]').click();
+    assert.equal(await page.locator('[data-skill][aria-pressed="true"]').count(), 0);
+    assert.equal((await page.locator('.resume-filter-status').textContent()).trim(), 'No skill selected.');
+    assert.equal(await page.evaluate(() => document.activeElement?.dataset.skill), 'testing-instrumentation', 'Clear filter must restore focus to the active skill');
+    await navierExpand.click();
+    await structuralSkill.click();
+    await page.locator('[data-clear-resume-filter]').click();
+    assert.equal(await page.locator('#resume-navier [data-visibility="detail"]:visible').count(), 9, 'Clearing a filter must preserve manual expansion');
+    await navierExpand.click();
+    await structuralSkill.focus();
+    assert(await structuralSkill.evaluate(element => element.matches(':focus')), 'Resume skill controls must accept keyboard focus');
+    const desktopResumeLayout = await page.locator('.resume-interactive').evaluate(element => {
+      const experience = element.querySelector('.resume-experience-column').getBoundingClientRect();
+      const skills = element.querySelector('.resume-skills').getBoundingClientRect();
+      return { experienceX: experience.x, skillsX: skills.x, skillsPosition: getComputedStyle(element.querySelector('.resume-skills-sticky')).position };
+    });
+    assert(desktopResumeLayout.experienceX < desktopResumeLayout.skillsX);
+    assert.equal(desktopResumeLayout.skillsPosition, 'sticky');
+    await page.setViewportSize({ width: 375, height: 812 });
+    const mobileResumeLayout = await page.locator('.resume-interactive').evaluate(element => {
+      const experience = element.querySelector('.resume-experience-column').getBoundingClientRect();
+      const skills = element.querySelector('.resume-skills').getBoundingClientRect();
+      return { experienceY: experience.y, skillsY: skills.y, skillsPosition: getComputedStyle(element.querySelector('.resume-skills-sticky')).position };
+    });
+    assert(mobileResumeLayout.skillsY < mobileResumeLayout.experienceY);
+    assert.equal(mobileResumeLayout.skillsPosition, 'static');
+    assert.equal(await page.locator('[data-resume] > *').first().getAttribute('class'), 'resume-skills', 'Mobile DOM order must match the visual skill-first order');
+    await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(pathToFileURL(path.join(root, 'index.html')).href);
     const heroCv = page.locator('.hero-cv');
     assert.equal(await heroCv.getAttribute('download'), '');
@@ -475,18 +597,11 @@ if (process.argv.includes('--browser')) {
     assert(page.url().includes('/services/'));
     assert.equal(await page.locator('.menu-toggle').getAttribute('aria-expanded'), 'false');
     await page.goto(pathToFileURL(path.join(root,'work/navier-test-correlation/index.html')).href);
-    assert(await page.locator('#contribution').isVisible());
-    assert.equal(await page.locator('details[open]').count(),0);
-    const summary = page.locator('summary').first();
-    await summary.focus();
-    assert.notEqual(await summary.evaluate(el=>getComputedStyle(el).outlineStyle),'none');
-    await page.keyboard.press('Enter');
-    assert.equal(await page.locator('details[open]').count(),1);
-    await summary.click();
-    assert.equal(await page.locator('details[open]').count(),0);
+    assert(await page.locator('#correlation-question').isVisible());
+    assert.equal(await page.locator('details').count(), 0);
     const out = path.join(root, '..', 'tmp', 'portfolio-v1-qa');
     fs.mkdirSync(out, { recursive: true });
-    for (const [file, width, name] of [['index.html',1440,'home-desktop'],['index.html',375,'home-mobile'],['work/navier-test-correlation/index.html',375,'case-mobile'],['work/navier-test-correlation/index.html',1440,'case-study'],['services/index.html',768,'services-tablet'],['about/index.html',1440,'about-desktop']]) {
+    for (const [file, width, name] of [['index.html',1440,'home-desktop'],['index.html',375,'home-mobile'],['resume/index.html',1440,'resume-desktop'],['resume/index.html',375,'resume-mobile'],['work/navier-test-correlation/index.html',375,'case-mobile'],['work/navier-test-correlation/index.html',1440,'case-study'],['services/index.html',768,'services-tablet'],['about/index.html',1440,'about-desktop']]) {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto(pathToFileURL(path.join(root, file)).href);
       await page.locator('img').evaluateAll(async images => { await Promise.all(images.map(img => { img.loading = 'eager'; return img.decode(); })); });
@@ -499,10 +614,14 @@ if (process.argv.includes('--browser')) {
     assert.equal(await plain.locator('.project-row').count(), 3);
     assert(await plain.locator('.header-cv').isVisible());
     await plain.goto(pathToFileURL(path.join(root,'work/navier-test-correlation/index.html')).href);
-    await plain.locator('summary').first().click();
-    assert.equal(await plain.locator('details[open]').count(),1);
+    assert(await plain.locator('#correlation-question').isVisible());
+    await plain.goto(pathToFileURL(path.join(root, 'resume/index.html')).href);
+    assert.equal(await plain.locator('[data-mission]').count(), resumeMissions.length);
+    assert.equal(await plain.locator('[data-visibility="detail"]:visible').count(), resumeMissions.filter(mission => mission.visibility === 'detail').length, 'All Resume content must remain available without JavaScript');
+    assert(await plain.locator('.resume-skills').isHidden(), 'Inert Resume skills must be hidden without JavaScript');
+    assert(await plain.locator('.resume-instruction').isHidden(), 'Interactive instruction must be hidden without JavaScript');
     assert.deepEqual(errors, []);
     await browser.close();
-    console.log('PASS: 60 viewport/page checks, images, CV access, filters, mobile menu, keyboard/touch details, no-JS navigation/details, no browser exceptions. Screenshots: ' + out);
+    console.log('PASS: viewport/page checks, images, CV access, filters, Resume interactions, mobile menu, no-JS content and no browser exceptions. Screenshots: ' + out);
   })().catch(err => { console.error(err); process.exitCode = 1; });
 }
