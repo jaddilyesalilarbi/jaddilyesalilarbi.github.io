@@ -286,9 +286,24 @@ const remainingCaseStudies = {
   'range-extender-integration': {
     title: 'Range Extender Integration',
     variant: 'range-extender',
-    sections: ['integration-brief', 'marine-constraints', 'development-loop', 'interface-design', 'production-feedback', 'manufacturing-outcome'],
-    evidence: ['packaging', 'mechanical interfaces', 'splash', 'humidity', 'salt', '2D drawings', 'supplier', 'assembly feedback', 'released for manufacturing', 'I designed the mounting and integration components, released the drawings for manufacturing and updated the design from assembly feedback.'],
-    minimumWords: 380,
+    sections: ['challenge', 'what-i-did', 'key-constraints', 'outcome'],
+    evidence: [
+      'Navier needed to integrate a generator-based range extender into a constrained hydrofoil-boat architecture.',
+      'The system had to fit within the available volume while maintaining structural interfaces, assembly access and protection from the marine environment.',
+      'Developed packaging layouts and mechanical interfaces.',
+      'Designed mounting and integration components in CAD.',
+      'Defined environmental-protection and sealing concepts.',
+      'Produced 2D drawings and manufacturing documentation.',
+      'Coordinated sourcing and supplier follow-up.',
+      'Incorporated manufacturing and assembly feedback into design updates.',
+      'Fit the system within the available vessel envelope.',
+      'Connect the generator package to the surrounding structure through defined mounting points and load paths.',
+      'Maintain installation, service and maintenance access.',
+      'Account for splash, humidity and salt through protection and sealing concepts.',
+      'Released the integration components for manufacturing and supported their assembly into the range-extender system.'
+    ],
+    minimumWords: 120,
+    maximumWords: 190,
     forbidden: /120 kW|160 hp|fully commissioned|finally validated|complete operational validation/i
   }
 };
@@ -303,8 +318,13 @@ for (const [id, expected] of Object.entries(remainingCaseStudies)) {
   const article = html.match(/<article class="case-study [^"]+">([\s\S]*?)<\/article>/)?.[1] || '';
   const words = article.replace(/<[^>]+>/g, ' ').replace(/&(?:amp|lt|gt|quot|#39|rarr);/g, ' ').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean).length;
   assert(words >= expected.minimumWords, `${id} needs more technical depth: ${words} words`);
+  if (expected.maximumWords) assert(words <= expected.maximumWords, `${id} remains too long: ${words} words`);
   if (expected.maximumWords) assert(words <= expected.maximumWords, `${id} remains too long and defensive: ${words} words`);
   assert(!/did not indicate|not a claim|evidence boundary|does not imply|intentionally stops|could support a decision|bounded that conclusion|universal properties|prevented the numerical output/.test(article), `Defensive editorial posture remains in ${id}`);
+}
+const rangeExtenderCase = fs.readFileSync(path.join(root, 'work/range-extender-integration/index.html'), 'utf8');
+for (const removed of ['The development loop', 'Packaging, interfaces and protection', 'Drawings, suppliers and assembly feedback']) {
+  assert(!rangeExtenderCase.includes(removed), `Redundant Range Extender section remains: ${removed}`);
 }
 const dist = path.join(root, 'dist');
 const publicFiles = fs.readdirSync(dist,{recursive:true,withFileTypes:true}).filter(e => e.isFile()).map(e => path.relative(dist,path.join(e.parentPath || e.path,e.name)).split(path.sep).join('/'));

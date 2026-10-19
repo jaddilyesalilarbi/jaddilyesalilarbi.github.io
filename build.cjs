@@ -124,10 +124,8 @@ function renderCorrelationCaseStudy(c, project, related) {
 
 function renderRangeExtenderCaseStudy(c, project, related) {
   const study = project.caseStudy;
-  const responsibility = `<p>${esc(study.responsibility.intro)}</p>${caseList(study.responsibility.items)}`;
   const constraints = `<div class="constraint-rail">${study.constraints.map((item, index) => `<section><span>${String(index + 1).padStart(2, '0')}</span><div><h3>${esc(item.title)}</h3><p>${esc(item.text)}</p></div></section>`).join('')}</div>`;
-  const loop = `<ol class="development-loop" aria-label="Mechanical development loop">${study.developmentLoop.map(item => `<li><h3>${esc(item.title)}</h3><p>${esc(item.text)}</p></li>`).join('')}</ol>`;
-  return `${caseHeader(c, project, study)}${c.media(project, true)}<article class="case-study case-study--range-extender">${caseSection('integration-brief', 'From system envelope to hardware', `${caseParagraphs(study.brief)}${responsibility}`)}${caseSection('marine-constraints', 'Mechanical and marine constraints', constraints, 'case-study-callout')}${caseSection('development-loop', 'The development loop', loop)}${caseSection('interface-design', 'Packaging, interfaces and protection', caseParagraphs(study.interfaceDesign))}${caseSection('production-feedback', 'Drawings, suppliers and assembly feedback', caseParagraphs(study.productionFeedback))}${caseSection('manufacturing-outcome', 'Manufacturing release', `<div class="release-outcome">${caseParagraphs(study.outcome)}</div>`, 'case-study-callout')}</article>${caseFooter(c, project, related)}`;
+  return `${caseHeader(c, project, study)}${c.media(project, true)}<article class="case-study case-study--range-extender">${caseSection('challenge', 'The challenge', caseParagraphs(study.challenge))}${caseSection('what-i-did', 'What I did', caseList(study.whatIDid), 'case-study-callout')}${caseSection('key-constraints', 'Key constraints', constraints)}${caseSection('outcome', 'Outcome', `<div class="release-outcome">${caseParagraphs(study.outcome)}</div>`, 'case-study-callout')}</article>${caseFooter(c, project, related)}`;
 }
 
 for (const p of data.projects) {

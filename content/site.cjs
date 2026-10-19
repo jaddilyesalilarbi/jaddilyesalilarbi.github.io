@@ -389,46 +389,26 @@ module.exports = {
           title: 'Range Extender Integration',
           year: '2025–2026',
           disciplines: ['Mechanical design', 'Systems integration', 'Manufacturing release'],
-          brief: [
-            'Navier needed to integrate a generator-based range extender into a constrained hybrid-electric marine platform. I turned the subsystem envelope into installable hardware with defined interfaces, a workable assembly sequence and protection from the marine environment.',
-            'The range extender shared space with the vessel structure and surrounding systems. I developed the packaging around access, mounting geometry, sealing and supplier constraints.'
+          challenge: [
+            'Navier needed to integrate a generator-based range extender into a constrained hydrofoil-boat architecture.',
+            'The system had to fit within the available volume while maintaining structural interfaces, assembly access and protection from the marine environment.'
           ],
-          responsibility: {
-            intro: 'I designed the mounting and integration components, released the drawings for manufacturing and updated the design from assembly feedback.',
-            items: [
-              'I developed packaging layouts and mechanical interfaces.',
-              'I designed mounting and integration components in CAD.',
-              'I developed environmental-protection and sealing concepts where required.',
-              'I prepared 2D drawings and manufacturing documentation.',
-              'I coordinated sourcing and supplier follow-up.',
-              'I incorporated manufacturing and assembly feedback into design updates.'
-            ]
-          },
+          whatIDid: [
+            'Developed packaging layouts and mechanical interfaces.',
+            'Designed mounting and integration components in CAD.',
+            'Defined environmental-protection and sealing concepts.',
+            'Produced 2D drawings and manufacturing documentation.',
+            'Coordinated sourcing and supplier follow-up.',
+            'Incorporated manufacturing and assembly feedback into design updates.'
+          ],
           constraints: [
-            { title: 'Packaging', text: 'I fitted the subsystem and supports into the vessel without blocking adjacent hardware.' },
-            { title: 'Interfaces', text: 'I connected the generator package to the boat structure through defined mounting points and load paths.' },
-            { title: 'Assembly & access', text: 'I checked installation sequence, tool access and service clearances.' },
-            { title: 'Marine exposure', text: 'I developed protection and sealing concepts for splash, humidity and salt.' },
-            { title: 'Supply chain', text: 'I adapted the part definitions to manufacturing processes, sourcing constraints and supplier feedback.' }
-          ],
-          developmentLoop: [
-            { title: 'Requirement', text: 'Translate the system envelope and vessel constraints into mechanical requirements.' },
-            { title: 'Layout / CAD', text: 'Develop the package position, access volume and support architecture.' },
-            { title: 'Interfaces', text: 'Define mounts, connections, clearances and environmental-protection concepts.' },
-            { title: 'Drawings', text: 'Produce 2D drawings and documentation suitable for supplier review.' },
-            { title: 'Manufacturing', text: 'Release parts, coordinate sourcing and answer production questions.' },
-            { title: 'Feedback', text: 'Return supplier and assembly feedback to the next design iteration.' }
-          ],
-          interfaceDesign: [
-            'I positioned the mechanical connections, fasteners and surrounding clearances inside the installation envelope. I checked tool access and the order in which each part entered the boat. This turned the CAD layout into an assembly-ready design.',
-            'I developed environmental-protection and sealing concepts around sensitive areas. I adjusted them for manufacturability and maintenance access.'
-          ],
-          productionFeedback: [
-            'I converted the CAD definition into 2D drawings and manufacturing documentation. I coordinated sourcing, answered supplier questions and clarified dimensions, processes and interface intent.',
-            'I updated the design from manufacturing and assembly feedback. Supplier capability changed some details, assembly access affected fastening choices and vessel integration exposed interferences that required correction.'
+            { title: 'Packaging', text: 'Fit the system within the available vessel envelope.' },
+            { title: 'Interfaces', text: 'Connect the generator package to the surrounding structure through defined mounting points and load paths.' },
+            { title: 'Assembly & access', text: 'Maintain installation, service and maintenance access.' },
+            { title: 'Marine exposure', text: 'Account for splash, humidity and salt through protection and sealing concepts.' }
           ],
           outcome: [
-            'I released the integration components for manufacturing and supported their assembly into the range-extender system.'
+            'Released the integration components for manufacturing and supported their assembly into the range-extender system.'
           ]
         }
       },
