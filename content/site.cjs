@@ -41,7 +41,7 @@ module.exports = {
     title: 'Resume',
     headline: 'Mechanical engineering across the hardware-development loop.',
     intro: 'Mechanical engineer working across design, systems integration, structural analysis, manufacturing and testing. Experience on full-scale electric, hybrid and hydrogen marine hardware at Navier and EPFL Solar Boat, from CAD and FEA through manufacturing, assembly, instrumentation and validation.',
-    instruction: 'Select a skill to highlight where I applied it. Expand an experience to see the full detail.',
+    instruction: 'Select a skill to highlight where I applied it.',
     skills: [
       { id: 'mechanical-design', name: 'Mechanical Design', description: 'Mechanical parts, packaging, interfaces and production-ready hardware.' },
       { id: 'systems-integration', name: 'Systems Integration', description: 'Equipment layout, interfaces, routing, access and vehicle-level constraints.' },
@@ -63,7 +63,7 @@ module.exports = {
           { id: 'navier-range-extender-integration', text: 'Designed and integrated key mechanical elements of a marine range-extender system, from packaging and interfaces through manufacturing release.', tags: ['mechanical-design', 'systems-integration'], visibility: 'summary' },
           { id: 'navier-hydrofoil-fea', text: 'Performed nonlinear structural analyses on full-scale composite hydrofoil assemblies, including ~1.5 m foils and ~2 m struts.', tags: ['structural-fea'], visibility: 'summary' },
           { id: 'navier-sim-test-correlation', text: 'Led simulation-to-test correlation work to investigate discrepancies across geometry, materials, loads, boundary conditions and measurements.', tags: ['structural-fea', 'testing-instrumentation'], visibility: 'summary' },
-          { id: 'navier-composite-access-hardware', text: 'Designed, sourced, manufactured and validated full-scale composite access hardware for technician access aboard the vessel.', tags: ['mechanical-design', 'structural-fea', 'manufacturing-assembly', 'testing-instrumentation'], visibility: 'summary' },
+          { id: 'navier-composite-access-hardware', text: 'Designed, sourced, manufactured and validated full-scale composite access hardware for technician access aboard the vessel.', tags: ['mechanical-design', 'structural-fea', 'manufacturing-assembly', 'testing-instrumentation'], visibility: 'detail' },
           { id: 'navier-range-extender-packaging', text: 'Developed mounting interfaces and environmental-protection concepts for range-extender hardware in a constrained marine installation.', tags: ['mechanical-design', 'systems-integration'], visibility: 'detail' },
           { id: 'navier-deflection-model', text: 'Refined a physics-based composite deflection model to improve prediction agreement with physical measurements.', tags: ['structural-fea', 'testing-instrumentation'], visibility: 'detail' },
           { id: 'navier-composite-verification', text: 'Built independent laminate-verification calculations using Classical Laminate Theory and composite failure criteria to challenge FEA results.', tags: ['structural-fea'], visibility: 'detail' },
@@ -90,7 +90,7 @@ module.exports = {
         missions: [
           { id: 'solar-lead-team', text: 'Led a 12-person Mechanical & Hydrodynamics team developing foils, propulsion systems and structural solutions.', tags: ['leadership-teaching', 'systems-integration'], visibility: 'summary' },
           { id: 'solar-full-vessel-fea', text: 'Built and iterated a full-vessel composite structural model covering the hull, internal structure, foils and appendages.', tags: ['structural-fea'], visibility: 'summary' },
-          { id: 'solar-fea-test-validation', text: 'Validated composite FEA against four-point-bending tests, with 6.0% and 2.2% displacement differences in the documented configurations.', tags: ['structural-fea', 'testing-instrumentation'], visibility: 'summary' },
+          { id: 'solar-fea-test-validation', text: 'Validated composite FEA against four-point-bending tests, with 6.0% and 2.2% displacement differences in the documented configurations.', tags: ['structural-fea', 'testing-instrumentation'], visibility: 'detail' },
           { id: 'solar-composite-manufacturing', text: 'Manufactured full-scale carbon-fiber structures through lay-up, vacuum bagging, curing, demoulding and bonding.', tags: ['manufacturing-assembly'], visibility: 'summary' },
           { id: 'solar-hydrogen-integration', text: 'Integrated a fuel-cell and hydrogen-storage system while balancing structural, stability, accessibility and safety constraints.', tags: ['mechanical-design', 'systems-integration', 'structural-fea'], visibility: 'summary' },
           { id: 'solar-lead-coordination', text: 'Coordinated technical work across foils, propulsion, structures, hydrodynamics and maintenance, managing interfaces between parallel workstreams.', tags: ['leadership-teaching', 'systems-integration'], visibility: 'detail' },
@@ -116,9 +116,9 @@ module.exports = {
         location: '',
         summary: 'Mechanics · Thermodynamics · Electromagnetism',
         missions: [
-          { id: 'teaching-theory', text: 'Taught mechanics, thermodynamics and electromagnetism through theory sessions.', tags: ['leadership-teaching'], visibility: 'summary' },
-          { id: 'teaching-exercises', text: 'Led exercise sessions and live problem corrections, explaining engineering and physics methods step by step.', tags: ['leadership-teaching'], visibility: 'summary' },
-          { id: 'teaching-groups', text: 'Independently taught student groups of up to ~50.', tags: ['leadership-teaching'], visibility: 'summary' },
+          { id: 'teaching-theory', text: 'Taught mechanics, thermodynamics and electromagnetism through theory and exercise sessions.', tags: ['leadership-teaching'], visibility: 'summary' },
+          { id: 'teaching-exercises', text: 'Led exercise sessions and live problem corrections, explaining engineering and physics methods step by step.', tags: ['leadership-teaching'], visibility: 'detail' },
+          { id: 'teaching-groups', text: 'Independently taught student groups of up to ~50, including live corrections and assessment.', tags: ['leadership-teaching'], visibility: 'summary' },
           { id: 'teaching-exam-grading', text: 'Graded examinations and assessed student work in core physics subjects.', tags: ['leadership-teaching'], visibility: 'detail' }
         ],
         relatedProjects: []

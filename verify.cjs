@@ -17,6 +17,11 @@ assert.equal(resumeSkillIds.size, 6, 'Resume must expose exactly six unique skil
 assert.deepEqual(data.resumePage.skills.map(skill => skill.id), ['mechanical-design', 'systems-integration', 'structural-fea', 'manufacturing-assembly', 'testing-instrumentation', 'leadership-teaching']);
 const resumeMissions = data.resumePage.experiences.flatMap(experience => experience.missions);
 assert.equal(ids(resumeMissions).size, resumeMissions.length, 'Resume mission IDs must be unique');
+const expectedResumeSummaries = {
+  'resume-navier': ['navier-hardware-ownership', 'navier-range-extender-integration', 'navier-hydrofoil-fea', 'navier-sim-test-correlation'],
+  'resume-solar-boat': ['solar-lead-team', 'solar-full-vessel-fea', 'solar-composite-manufacturing', 'solar-hydrogen-integration'],
+  'resume-teaching': ['teaching-theory', 'teaching-groups']
+};
 for (const mission of resumeMissions) {
   assert(['summary', 'detail'].includes(mission.visibility), `Invalid Resume visibility: ${mission.id}`);
   assert(mission.tags.length > 0, `Resume mission needs at least one skill: ${mission.id}`);
@@ -33,6 +38,7 @@ assert.deepEqual(Object.fromEntries(data.resumePage.skills.map(skill => [skill.i
 for (const experience of data.resumePage.experiences) {
   assert(experience.missions.some(mission => mission.visibility === 'summary'), `Resume experience needs summary missions: ${experience.id}`);
   assert(experience.missions.some(mission => mission.visibility === 'detail'), `Resume experience needs detail missions: ${experience.id}`);
+  assert.deepEqual(experience.missions.filter(mission => mission.visibility === 'summary').map(mission => mission.id), expectedResumeSummaries[experience.id], `Incorrect Resume summary set: ${experience.id}`);
   (experience.relatedProjects || []).forEach(project => {
     assert(ids(data.projects).has(project.id), `Unknown Resume project: ${project.id}`);
     assert(project.label, `Resume project link needs an explicit label: ${project.id}`);
@@ -74,8 +80,10 @@ const resumePage = fs.readFileSync(path.join(root, 'resume/index.html'), 'utf8')
 const siteCss = fs.readFileSync(path.join(root, 'site.css'), 'utf8');
 assert(resumePage.includes('<h1>Resume</h1>'));
 assert(resumePage.includes('Mechanical engineering across the hardware-development loop.'));
-assert(resumePage.includes('Select a skill to highlight where I applied it. Expand an experience to see the full detail.'));
+assert(resumePage.includes('Select a skill to highlight where I applied it.'));
 assert.equal((resumePage.match(/data-skill="/g) || []).length, 6, 'Resume must render six skill controls');
+assert.equal((resumePage.match(/<details class="resume-native-details" data-resume-details>/g) || []).length, 3, 'Each Resume experience needs a native collapsed fallback');
+assert.equal((resumePage.match(/<details class="resume-native-details" data-resume-details open/g) || []).length, 0, 'Native Resume details must start collapsed');
 for (const skill of data.resumePage.skills) {
   const count = resumeMissions.filter(mission => mission.tags.includes(skill.id)).length;
   assert(resumePage.includes(`data-skill="${skill.id}"`), `Missing Resume skill control: ${skill.id}`);
@@ -99,7 +107,6 @@ assert(resumePage.includes('href="../contact/index.html"'));
 assert(!/84%|range-extender power|battery capacit|Navier safety factor|confidential load|internal test value/i.test(resumePage), 'Restricted Resume value leaked into public copy');
 assert(siteCss.includes(':focus-visible{outline:3px'), 'Visible keyboard focus styling must remain available');
 assert(siteCss.includes('@media(prefers-reduced-motion:reduce)'), 'Reduced-motion support must remain available');
-assert(siteCss.includes('.resume-mission.is-muted{opacity:.7}'), 'Muted Resume missions must retain readable contrast');
 assert(resumePage.includes('<p class="resume-instruction" hidden>'), 'Interactive Resume instruction must stay hidden without JavaScript');
 assert(resumePage.includes('<aside class="resume-skills" aria-labelledby="resume-skills-title" hidden>'), 'Inert Resume skill controls must stay hidden without JavaScript');
 const aboutResume = fs.readFileSync(path.join(root, 'about/index.html'), 'utf8');
@@ -518,8 +525,11 @@ if (process.argv.includes('--browser')) {
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(pathToFileURL(path.join(root, 'resume/index.html')).href);
     assert.equal(await page.locator('[data-skill]').count(), 6);
+    assert.deepEqual(await page.locator('[data-experience]').evaluateAll(experiences => experiences.map(experience => experience.querySelectorAll('[data-mission]:not([hidden])').length)), [4, 4, 2], 'Resume must start with exactly 4/4/2 visible missions');
+    assert.equal(await page.locator('[data-mission]:visible').count(), 10, 'Resume must expose ten missions by default');
     assert.equal(await page.locator('[data-visibility="detail"]:visible').count(), 0, 'Resume detail missions must start collapsed with JavaScript');
     assert.equal(await page.locator('[data-expand-experience]:visible').count(), 3);
+    assert.deepEqual(await page.locator('[data-expand-experience]').allTextContents().then(items => items.map(item => item.trim())), ['Show 10 more missions', 'Show 10 more missions', 'Show 2 more missions']);
     const structuralSkill = page.locator('[data-skill="structural-fea"]');
     await structuralSkill.click();
     assert.equal(await structuralSkill.getAttribute('aria-pressed'), 'true');
@@ -527,20 +537,32 @@ if (process.argv.includes('--browser')) {
     assert.equal(await page.locator('[data-mission].is-muted').count(), resumeMissions.length - 11);
     assert(await page.locator('#navier-composite-verification').isVisible(), 'A matching detail mission must be revealed by the filter');
     assert(await page.locator('#navier-hardware-ownership').isVisible(), 'A non-matching summary mission must remain visible');
+    const mutedMission = page.locator('[data-mission].is-muted:visible').first();
+    await mutedMission.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
+    const mutedOpacity = Number(await mutedMission.evaluate(element => getComputedStyle(element).opacity));
+    assert(mutedOpacity >= .35 && mutedOpacity <= .45, `Muted missions must remain readable at 35–45% opacity, got ${mutedOpacity}`);
     assert((await page.locator('.resume-filter-status').textContent()).includes('11 relevant missions'));
     assert(await page.locator('[data-clear-resume-filter]').isVisible());
     await structuralSkill.click();
     assert.equal(await structuralSkill.getAttribute('aria-pressed'), 'false');
     assert.equal(await page.locator('[data-mission].is-match').count(), 0);
     assert.equal(await page.locator('[data-visibility="detail"]:visible').count(), 0);
+    for (const skill of data.resumePage.skills) {
+      const button = page.locator(`[data-skill="${skill.id}"]`);
+      await button.click();
+      const expectedMatches = resumeMissions.filter(mission => mission.tags.includes(skill.id));
+      assert.equal(await page.locator('[data-mission].is-match').count(), expectedMatches.length, `All ${skill.name} missions must be highlighted`);
+      for (const mission of expectedMatches) assert(await page.locator(`#${mission.id}`).isVisible(), `Filtered Resume mission must be revealed: ${mission.id}`);
+      await button.click();
+    }
     const navierExpand = page.locator('#resume-navier [data-expand-experience]');
     await navierExpand.click();
     assert.equal(await navierExpand.getAttribute('aria-expanded'), 'true');
     assert.equal((await navierExpand.textContent()).trim(), 'Show less');
-    assert.equal(await page.locator('#resume-navier [data-visibility="detail"]:visible').count(), 9);
+    assert.equal(await page.locator('#resume-navier [data-visibility="detail"]:visible').count(), 10);
     await navierExpand.click();
     assert.equal(await navierExpand.getAttribute('aria-expanded'), 'false');
-    assert.equal((await navierExpand.textContent()).trim(), 'Show more');
+    assert.equal((await navierExpand.textContent()).trim(), 'Show 10 more missions');
     await page.locator('[data-skill="testing-instrumentation"]').click();
     await page.locator('[data-clear-resume-filter]').click();
     assert.equal(await page.locator('[data-skill][aria-pressed="true"]').count(), 0);
@@ -549,10 +571,12 @@ if (process.argv.includes('--browser')) {
     await navierExpand.click();
     await structuralSkill.click();
     await page.locator('[data-clear-resume-filter]').click();
-    assert.equal(await page.locator('#resume-navier [data-visibility="detail"]:visible').count(), 9, 'Clearing a filter must preserve manual expansion');
+    assert.equal(await page.locator('#resume-navier [data-visibility="detail"]:visible').count(), 10, 'Clearing a filter must preserve manual expansion');
     await navierExpand.click();
     await structuralSkill.focus();
     assert(await structuralSkill.evaluate(element => element.matches(':focus')), 'Resume skill controls must accept keyboard focus');
+    assert.equal(await page.locator('.resume-related ul').count(), 0, 'Related work must not use full-width list rows');
+    assert.equal(await page.locator('.resume-related-links').count(), 2, 'Related work must render as compact inline links');
     const desktopResumeLayout = await page.locator('.resume-interactive').evaluate(element => {
       const experience = element.querySelector('.resume-experience-column').getBoundingClientRect();
       const skills = element.querySelector('.resume-skills').getBoundingClientRect();
@@ -560,15 +584,34 @@ if (process.argv.includes('--browser')) {
     });
     assert(desktopResumeLayout.experienceX < desktopResumeLayout.skillsX);
     assert.equal(desktopResumeLayout.skillsPosition, 'sticky');
-    await page.setViewportSize({ width: 375, height: 812 });
+    const desktopEducation = await page.locator('.resume-education-list article').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect()));
+    assert(Math.abs(desktopEducation[0].y - desktopEducation[1].y) < 2, 'Education entries must sit side by side on desktop');
+    const desktopToolset = await page.locator('.resume-toolset-grid article').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect()));
+    assert(Math.abs(desktopToolset[0].y - desktopToolset[1].y) < 2, 'Toolset must use a compact two-column desktop layout');
+    const resumeTop = await page.locator('.resume-interactive').evaluate(element => element.offsetTop);
+    await page.evaluate(top => window.scrollTo(0, top + 420), resumeTop);
+    await page.waitForFunction(() => Math.abs(document.querySelector('.resume-skills-sticky').getBoundingClientRect().top - 116) < 3);
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.evaluate(() => window.scrollTo(0, 0));
+    const desktop1280Ratio = await page.locator('.resume-interactive').evaluate(element => {
+      const experience = element.querySelector('.resume-experience-column').getBoundingClientRect();
+      const skills = element.querySelector('.resume-skills').getBoundingClientRect();
+      return experience.width / (experience.width + skills.width);
+    });
+    assert(desktop1280Ratio >= .68 && desktop1280Ratio <= .72, `Resume desktop ratio must stay near 70/30, got ${desktop1280Ratio}`);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.waitForFunction(() => document.querySelector('[data-resume] > :first-child')?.classList.contains('resume-skills'));
     const mobileResumeLayout = await page.locator('.resume-interactive').evaluate(element => {
       const experience = element.querySelector('.resume-experience-column').getBoundingClientRect();
       const skills = element.querySelector('.resume-skills').getBoundingClientRect();
-      return { experienceY: experience.y, skillsY: skills.y, skillsPosition: getComputedStyle(element.querySelector('.resume-skills-sticky')).position };
+      const skillList = element.querySelector('.resume-skill-list');
+      return { experienceY: experience.y, skillsY: skills.y, skillsPosition: getComputedStyle(element.querySelector('.resume-skills-sticky')).position, skillOverflow: getComputedStyle(skillList).overflowX };
     });
     assert(mobileResumeLayout.skillsY < mobileResumeLayout.experienceY);
     assert.equal(mobileResumeLayout.skillsPosition, 'static');
+    assert.equal(mobileResumeLayout.skillOverflow, 'auto');
     assert.equal(await page.locator('[data-resume] > *').first().getAttribute('class'), 'resume-skills', 'Mobile DOM order must match the visual skill-first order');
+    assert.equal(await page.locator('[data-mission]:visible').count(), 10, 'Mobile must preserve the 4/4/2 default mission limit');
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(pathToFileURL(path.join(root, 'index.html')).href);
     const heroCv = page.locator('.hero-cv');
@@ -601,7 +644,7 @@ if (process.argv.includes('--browser')) {
     assert.equal(await page.locator('details').count(), 0);
     const out = path.join(root, '..', 'tmp', 'portfolio-v1-qa');
     fs.mkdirSync(out, { recursive: true });
-    for (const [file, width, name] of [['index.html',1440,'home-desktop'],['index.html',375,'home-mobile'],['resume/index.html',1440,'resume-desktop'],['resume/index.html',375,'resume-mobile'],['work/navier-test-correlation/index.html',375,'case-mobile'],['work/navier-test-correlation/index.html',1440,'case-study'],['services/index.html',768,'services-tablet'],['about/index.html',1440,'about-desktop']]) {
+    for (const [file, width, name] of [['index.html',1440,'home-desktop'],['index.html',375,'home-mobile'],['resume/index.html',1440,'resume-desktop'],['resume/index.html',1280,'resume-desktop-1280'],['resume/index.html',390,'resume-mobile'],['work/navier-test-correlation/index.html',375,'case-mobile'],['work/navier-test-correlation/index.html',1440,'case-study'],['services/index.html',768,'services-tablet'],['about/index.html',1440,'about-desktop']]) {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto(pathToFileURL(path.join(root, file)).href);
       await page.locator('img').evaluateAll(async images => { await Promise.all(images.map(img => { img.loading = 'eager'; return img.decode(); })); });
@@ -617,7 +660,11 @@ if (process.argv.includes('--browser')) {
     assert(await plain.locator('#correlation-question').isVisible());
     await plain.goto(pathToFileURL(path.join(root, 'resume/index.html')).href);
     assert.equal(await plain.locator('[data-mission]').count(), resumeMissions.length);
-    assert.equal(await plain.locator('[data-visibility="detail"]:visible').count(), resumeMissions.filter(mission => mission.visibility === 'detail').length, 'All Resume content must remain available without JavaScript');
+    assert.equal(await plain.locator('[data-mission]:visible').count(), 10, 'No-JS Resume must remain short by default');
+    assert.equal(await plain.locator('[data-visibility="detail"]:visible').count(), 0, 'No-JS Resume details must start collapsed');
+    assert.equal(await plain.locator('[data-resume-details]').count(), 3, 'No-JS Resume must retain native detail controls');
+    await plain.locator('#resume-navier [data-resume-details] > summary').click();
+    assert.equal(await plain.locator('#resume-navier [data-visibility="detail"]:visible').count(), 10, 'No-JS native control must reveal the complete experience detail');
     assert(await plain.locator('.resume-skills').isHidden(), 'Inert Resume skills must be hidden without JavaScript');
     assert(await plain.locator('.resume-instruction').isHidden(), 'Interactive instruction must be hidden without JavaScript');
     assert.deepEqual(errors, []);

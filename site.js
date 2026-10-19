@@ -37,8 +37,15 @@ const resumeRoot = document.querySelector('[data-resume]');
 if (resumeRoot) {
   document.documentElement.classList.add('js');
   const skillButtons = [...resumeRoot.querySelectorAll('[data-skill]')];
-  const missions = [...resumeRoot.querySelectorAll('[data-mission]')];
   const experiences = [...resumeRoot.querySelectorAll('[data-experience]')];
+  experiences.forEach(experience => {
+    const missionList = experience.querySelector('[data-resume-missions]');
+    const nativeDetails = experience.querySelector('[data-resume-details]');
+    if (!missionList || !nativeDetails) return;
+    nativeDetails.querySelectorAll('[data-mission]').forEach(mission => missionList.append(mission));
+    nativeDetails.remove();
+  });
+  const missions = [...resumeRoot.querySelectorAll('[data-mission]')];
   const experienceColumn = resumeRoot.querySelector('.resume-experience-column');
   const skillsPanel = resumeRoot.querySelector('.resume-skills');
   const instruction = document.querySelector('.resume-instruction');
@@ -71,10 +78,11 @@ if (resumeRoot) {
     experiences.forEach(experience => {
       const button = experience.querySelector('[data-expand-experience]');
       if (!button) return;
-      button.hidden = false;
       const expanded = manuallyExpanded.get(experience.id);
+      const hiddenCount = [...experience.querySelectorAll('[data-visibility="detail"]')].filter(mission => mission.hidden).length;
+      button.hidden = !expanded && hiddenCount === 0;
       button.setAttribute('aria-expanded', String(expanded));
-      button.querySelector('span').textContent = expanded ? 'Show less' : 'Show more';
+      button.querySelector('span').textContent = expanded ? 'Show less' : `Show ${hiddenCount} more mission${hiddenCount === 1 ? '' : 's'}`;
     });
     if (!activeSkill) {
       status.textContent = 'No skill selected.';
