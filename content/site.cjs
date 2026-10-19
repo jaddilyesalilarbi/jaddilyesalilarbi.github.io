@@ -59,59 +59,30 @@ module.exports = {
           year: '2024',
           disciplines: ['Composite structures', 'Finite element analysis', 'Physical testing'],
           challenge: [
-            'EPFL Solar Boat was moving an approximately 7 m full-scale composite hydrofoil boat from detailed design toward production. I treated the hull, internal structure, floats, foil wells and appendages as one interacting load-carrying system rather than isolated components. At this scale, a local change at an appendage interface could alter how load spread through the internal structure and hull.',
-            'The engineering objective was direct: determine where the proposed laminates were sufficient and where stacking or local reinforcement had to change before manufacturing. The model needed to cover operating and exceptional cases while remaining efficient enough to support repeated design iterations.'
+            'EPFL Solar Boat was developing a full-scale composite hydrofoil boat from detailed design through manufacturing.',
+            'I was responsible for assessing the structure as a complete system and helping define laminate designs before production.'
           ],
-          responsibility: {
-            intro: 'I owned the composite modelling and the interpretation needed to turn the results into design iterations.',
-            items: [
-              'I built and iterated full-vessel composite surface models in 3DEXPERIENCE.',
-              'I defined laminate zones and stacking sequences and assessed composite failure.',
-              'I investigated strut, rudder and foil-well behaviour with pseudo-strut and pseudo-rudder models.',
-              'I checked mesh convergence and investigated numerical singularities.',
-              'I compared selected predictions with four-point bending tests and used the findings to iterate layups and reinforcements.'
-            ]
-          },
-          approach: [
-            'I represented the structure with composite shells and zones, each with its own laminate definition. The connected full-vessel model preserved the global load path and linked local laminate response to vessel deformation. I varied the modelling detail by area: full-vessel behaviour remained global, while critical interfaces received more focused analysis.',
-            'Through the V2 and V3 iterations, I adjusted model fidelity to keep the analyses solvable and useful for design decisions. I used the global model to locate critical interfaces and focused models to answer local questions. The pseudo-strut and pseudo-rudder showed how loads entered the foil wells and transferred through the reinforcement into the surrounding hull structure.'
+          whatIDid: [
+            'Built and maintained a full-vessel composite model covering the hull, internal structure, floats, foil wells and appendages.',
+            'Defined laminate zones and stacking sequences.',
+            'Assessed planing, flight, crash, slamming and immersion load cases.',
+            'Evaluated composite failure using Tsai-Wu criteria.',
+            'Checked mesh convergence and investigated local numerical singularities.',
+            'Iterated laminate and structural designs with the team before manufacturing.'
           ],
-          vesselVisual: {
-            src: 'assets/solar-boat.png',
-            alt: 'EPFL Solar Boat vessel rendering with hull and hydrofoil appendages',
-            caption: 'Vessel architecture showing the hull, foil wells and appendages as one interacting structural system.',
-            layout: 'wide',
-            theme: 'light',
-            width: 1178,
-            height: 642
-          },
-          loadCases: {
-            items: ['Planing', 'Flight', 'Crash', 'Slamming', 'Immersion'],
-            paragraphs: [
-              'I assessed planing, flight, crash, slamming and immersion separately because each introduced load through a different part of the vessel. Together, they covered distributed hull response and concentrated loads entering through the appendages instead of collapsing both behaviours into one envelope.',
-              'For appendage cases, I followed the path from strut or rudder through the foil wells, local reinforcement and internal structure into the hull. I checked whether deformation and load transfer remained continuous across those interfaces. The simplified studies made this transfer easier to interpret and exposed where the structure, rather than the idealised interface, needed attention.'
-            ]
-          },
-          compositeAssessment: [
-            'I assigned and iterated laminate definitions by structural zone. I compared the Tsai-Wu failure index with stiffness, deformation and load transfer before changing a stacking sequence or adding reinforcement. This tied every laminate change to the behaviour of its structural zone and the surrounding vessel.',
-            'When a local peak appeared, I checked its position, mesh sensitivity, load path and boundary conditions. I refined the mesh and tracked whether the global response converged or only the local peak continued to rise. Peaks confined to idealised constraints or sharp transitions were treated as numerical singularities. Converged responses along the physical load path drove structural changes.'
+          analysisApproach: [
+            'The model was used to evaluate global stiffness, load transfer and composite margins across the complete vessel rather than analysing isolated components independently.',
+            'Local reinforcement, laminate definition and structural interfaces were updated as the design evolved.'
           ],
           physicalTesting: {
-            intro: 'I compared FEA displacement with two four-point bending configurations to check the modelled stiffness response against physical measurements. Displacement provided a direct comparison of global stiffness for the two documented test setups.',
+            intro: 'Four-point bending tests provided a direct comparison between simulation and physical measurements on two documented configurations.',
             comparisons: [
               { name: 'Configuration 1', measured: '20.0 mm', simulated: '18.8 mm', difference: '6.0%' },
               { name: 'Configuration 2', measured: '0.90 mm', simulated: '0.92 mm', difference: '2.2%' }
-            ],
-            conclusion: 'The close agreement increased confidence in the modelled stiffness for both bending configurations and complemented the convergence and composite-failure checks. The comparison covered these two documented test configurations.'
+            ]
           },
-          manufacturingOutcome: [
-            'The simulations identified weak areas requiring laminate or local reinforcement changes. I revised the stacking and structural definitions, then reassessed each affected region under its governing case. The response determined whether I changed the stacking sequence or reinforced the load path. Most cases passed after these iterations.',
-            'The resulting design progressed to manufacturing by EPFL Solar Boat and NTPT.'
-          ],
-          proofs: [
-            { title: 'Full-system modelling', text: 'Composite structural analysis at vessel scale rather than isolated components.' },
-            { title: 'Engineering judgement', text: 'Convergence and singularity analysis used to distinguish numerical artefacts from physical structural issues.' },
-            { title: 'Analysis to hardware', text: 'Simulation drove layup and reinforcement iterations before manufacturing.' }
+          outcome: [
+            'The resulting laminate and structural design progressed to manufacturing by EPFL Solar Boat and NTPT.'
           ]
         }
       },
@@ -151,34 +122,23 @@ module.exports = {
           year: '2025–2026',
           disciplines: ['Nonlinear FEA', 'Composite structures', 'Design assessment'],
           question: [
-            'Navier needed to determine whether the existing hydrofoil appendages could support an increased payload requirement. I assessed the design with nonlinear structural analysis and used the results to decide whether the appendages needed to change.',
-            'The assembly combines foils approximately 1.5 m wide with struts approximately 2 m long. I analysed the foil, strut and interfaces together because deformation and load transfer depend on the complete assembly.'
+            'Navier needed to determine whether the existing hydrofoil appendages could support an increased payload requirement.',
+            'The assembly combines foils approximately 1.5 m wide with struts approximately 2 m long, so deformation and load transfer had to be assessed at assembly level.'
           ],
-          responsibility: {
-            intro: 'I prepared and ran the structural assessment and translated the simulation results into a design recommendation.',
-            items: [
-              'I prepared the structural models in 3DEXPERIENCE.',
-              'I ran nonlinear analyses for the revised loads.',
-              'I assessed stiffness, deformation and composite behaviour.',
-              'I checked safety margins using the defined loads, laminate properties and boundary conditions.',
-              'I interpreted the results at foil–strut assembly level and made the retain-or-redesign recommendation.'
-            ]
-          },
-          nonlinearAnalysis: [
-            'I used nonlinear analysis to capture the deformed response of the long, slender appendages. The model tracked how foil and strut deformation changed the load path through their connections.',
-            'I compared displacement, stiffness and composite criteria across the assembly. I reviewed laminate behaviour with the global deformation to identify both local material limits and excessive flexibility.'
+          whatIDid: [
+            'Prepared and ran nonlinear structural models in 3DEXPERIENCE.',
+            'Analysed the foil, strut and mechanical interfaces as a complete assembly.',
+            'Evaluated stiffness, deformation and composite response.',
+            'Checked sensitivity to geometry, laminate properties, applied loads and boundary conditions.',
+            'Interpreted the results to support the retain-or-redesign decision.'
           ],
-          modelScope: [
-            { title: 'Geometry', text: 'I retained the structural form and interfaces that controlled assembly stiffness.' },
-            { title: 'Composite definition', text: 'I used laminate properties and orientation to assess stiffness and structural margins.' },
-            { title: 'Load introduction', text: 'I traced each load through the foil, strut and connections.' },
-            { title: 'Boundary conditions', text: 'I matched the constraints to the physical support of the assembly.' }
+          analysisApproach: [
+            { title: 'Geometry', text: 'Modelled the structural form and interfaces governing assembly stiffness.' },
+            { title: 'Composite definition', text: 'Used laminate properties and orientations to assess stiffness and structural response.' },
+            { title: 'Load introduction', text: 'Applied loads through the foil, strut and connections.' },
+            { title: 'Boundary conditions', text: 'Matched the constraints to the physical support of the assembly.' }
           ],
-          assemblyInterpretation: [
-            'I followed deformation and load transfer from the foil through the strut and mechanical interfaces. I then compared local composite margins with the stiffness of the connected assembly. This showed whether the existing components still worked together under the revised requirement.',
-            'I checked the result against changes in geometry, load application, laminate properties and boundary conditions before making the design recommendation.'
-          ],
-          decision: [
+          outcome: [
             'The analysis supported retaining the existing appendage design for the increased payload requirement.'
           ]
         }
@@ -219,49 +179,23 @@ module.exports = {
           year: '2024–2025',
           disciplines: ['Systems integration', 'Mechanical design', 'Structural assessment'],
           challenge: [
-            'EPFL Solar Boat needed to integrate a hydrogen energy subsystem into an existing composite vessel. I had to place and support the major equipment without compromising structure, stability, access or the surrounding systems.',
-            'Component position affected the centre of gravity and hydrofoil loads. Orientation affected mounting interfaces, cable routing, ventilation and maintenance access. I developed the layout, supports and stability assessment together.'
+            'EPFL Solar Boat needed to integrate a hydrogen energy system into an existing composite vessel without compromising structure, stability, installation or maintenance access.',
+            'The fuel-cell system, storage, supports and surrounding equipment had to work as a single mechanical integration problem.'
           ],
-          responsibility: {
-            intro: 'I developed the mechanical integration concept and carried the layout through structural and stability assessment.',
-            items: [
-              'I developed component layouts and defined the mechanical interfaces with the composite vessel.',
-              'I designed the support structures and sized the composite supports in 3DEXPERIENCE.',
-              'I assessed mass distribution, centre of gravity and static and dynamic stability.',
-              'I developed a MATLAB stability tool and compared its results with the CAD model.',
-              'I incorporated cable routing, ventilation and maintenance access into the layout iterations.'
-            ]
-          },
-          constraints: [
-            { title: 'Vessel balance', text: 'I compared mass distribution, centre of gravity and the resulting foil loads for each layout.' },
-            { title: 'Structural interfaces', text: 'I designed supports that transferred concentrated equipment loads into the composite structure.' },
-            { title: 'Installation envelope', text: 'The equipment, supports and routing had to fit an achievable assembly sequence.' },
-            { title: 'Service & safety', text: 'The layout preserved maintenance access, ventilation and separation from adjacent systems.' }
-          ],
-          layoutSupports: [
-            'I compared candidate positions in CAD against the surrounding bulkheads, access paths and routing space. I iterated the component layout to improve mass distribution, structural support and maintenance access. I developed the supports at the same time so every proposed position had a practical installation and load path.',
-            'I defined the mounting interfaces and connected each support to the surrounding composite structure. I sized the supports for crash, turning and slamming loads as well as static weight.'
-          ],
-          stability: {
-            paragraphs: [
-              'I assessed how each layout shifted the longitudinal centre of gravity and changed vessel equilibrium. Moving the major equipment rearward improved mass distribution and reduced the load on the main foil.',
-              'I developed a MATLAB stability tool using component mass properties and longitudinal positions. It calculated vessel equilibrium for each proposed arrangement. I compared the results with the CAD model, then returned them to the layout and support design.'
-            ],
-            steps: ['Update component positions and mass properties', 'Solve the vessel equilibrium in MATLAB', 'Compare the result with the CAD model', 'Return the findings to the layout and support design']
-          },
-          supportSizing: [
-            'I modelled the support concepts in 3DEXPERIENCE and assessed stiffness, load transfer and combined-stress behaviour. I used Tsai-Wu for the composite supports and identified the areas that required reinforcement.',
-            'The analysis revealed local buckling in one area. I reinforced the support, updated the interface and reassessed the design before release.'
+          whatIDid: [
+            'Developed the equipment layout and mechanical integration architecture in 3DEXPERIENCE.',
+            'Designed mounting supports and assessed stiffness and load transfer.',
+            'Used MATLAB stability calculations to compare component positions and mass distribution.',
+            'Integrated routing, ventilation and maintenance-access constraints.',
+            'Iterated the layout across CAD, structural analysis, stability and installation requirements.'
           ],
           tradeoffs: [
-            { title: 'Placement ↔ stability', text: 'I compared each component position against centre of gravity and foil loading.' },
-            { title: 'Support ↔ access', text: 'I preserved installation clearance and maintenance access around the load path.' },
-            { title: 'Routing ↔ structure', text: 'I routed cables and ventilation around the structural interfaces.' },
-            { title: 'CAD ↔ MATLAB', text: 'CAD defined the geometry; MATLAB accelerated stability comparisons.' }
+            { title: 'Packaging ↔ stability', text: 'Component position affected both available space and vessel balance.' },
+            { title: 'Support stiffness ↔ access', text: 'Mounting structures had to carry the equipment without blocking installation or maintenance.' },
+            { title: 'Routing ↔ structure', text: 'Cables, ventilation and surrounding systems had to coexist with structural interfaces.' }
           ],
           outcome: [
-            'The final layout met the structural and stability requirements while preserving routing, ventilation and maintenance access.',
-            'The final integration design and support structures progressed to manufacturing.'
+            'The final integration layout and support structures progressed to manufacturing.'
           ]
         }
       },
@@ -302,51 +236,27 @@ module.exports = {
           year: '2025–2026',
           disciplines: ['Physical testing', 'Structural modelling', 'Uncertainty analysis'],
           question: [
-            'The predicted hydrofoil deflection and physical measurements showed a large discrepancy. I investigated the calculation, model inputs and test conditions.',
-            'I improved the deflection prediction and identified the data gaps preventing a reliable safety-factor estimate.'
+            'Simulation and physical measurements showed a large discrepancy in hydrofoil deflection.',
+            'The objective was to understand the source of the error, improve the prediction method and determine whether the available data supported a reliable structural safety-factor estimate.'
           ],
-          responsibility: {
-            intro: 'I led the correlation study from the initial discrepancy to the revised prediction and data-gap assessment.',
-            items: [
-              'I reconstructed the calculation chain behind the deflection prediction.',
-              'I improved the internal physics-based deflection-prediction method.',
-              'I investigated uncertainty in geometry, material properties, loads, boundary conditions and measurements.',
-              'I identified the inputs and measurements that needed better characterisation.'
-            ]
-          },
-          method: [
-            'I reconstructed the calculation chain from the physical inputs to the predicted displacement. I reviewed the geometry, stiffness model, load application and supports instead of correcting the final number empirically. Each change remained tied to a physical input.',
-            'I compared the revised prediction with the measurements and traced the remaining differences to uncertain inputs. The updated method substantially improved agreement with the measured deflection.'
+          whatIDid: [
+            'Reconstructed the calculation chain behind the predicted deflection.',
+            'Improved the internal physics-based deflection method.',
+            'Compared the revised prediction with physical measurements.',
+            'Investigated uncertainty in geometry, material properties, applied loads, boundary conditions and measurements.',
+            'Identified the additional inputs required for a reliable safety-factor estimate.'
           ],
-          workflow: ['Define the measured quantity and comparison case', 'Trace the model inputs that control deflection', 'Revise the physics-based prediction method', 'Compare again and quantify the remaining uncertainty'],
-          uncertainties: [
-            { title: 'Geometry', text: 'Differences between the physical appendage and model geometry changed stiffness and displacement.' },
-            { title: 'Laminate & materials', text: 'Laminate definitions and material properties required better characterisation.' },
-            { title: 'Applied loads', text: 'Force magnitude, position and load introduction affected both test and model response.' },
-            { title: 'Boundary conditions', text: 'Fixture and support stiffness had to match the model constraints.' },
-            { title: 'Measurements', text: 'Sensor accuracy, position and reference affected the comparison.' }
-          ],
-          testing: [
-            'Navier’s wider test programme used physical load and deflection measurements, strain gauges, load cells, DAQ, waterproof sensor housings and purpose-built hardware. This correlation study used the measurements relevant to the deflection comparison.',
-            'I compared the measured quantity, applied load and physical support conditions with the model. The fixture, geometry and load path required better characterisation before calculating a precise safety factor.'
+          physicalEvidence: [
+            'The study combined structural testing with physical load and deflection measurements, strain gauges and data acquisition.',
+            'The comparison between predicted and measured behaviour was used to distinguish modelling limitations from uncertainty in the available inputs.'
           ],
           conclusions: [
-            { title: 'What improved', text: 'The revised method substantially improved agreement between the deflection prediction and physical measurements.' },
+            { title: 'What improved', text: 'The revised method substantially improved agreement between predicted and measured deflection.' },
             { title: 'What remained unresolved', text: 'The available measurements were insufficient to determine a precise structural safety factor.' }
           ],
           conclusionContext: [
-            'The remaining uncertainty came from geometry, material properties, loads, boundary conditions and measurements. I defined what needed better characterisation before calculating a safety factor.'
-          ],
-          nextEvidence: {
-            intro: 'A precise safety-factor estimate requires better definition of:',
-            items: [
-              'as-built geometry and laminate definitions for the tested structure;',
-              'material properties representative of the manufactured composite;',
-              'applied force magnitude, position and load introduction;',
-              'fixture stiffness and physical boundary conditions;',
-              'measurement accuracy, sensor position and repeatability.'
-            ]
-          }
+            'The study identified the geometry, material, load, boundary-condition and measurement data that required better characterisation before calculating one.'
+          ]
         }
       },
       expertise: ['validation', 'structural'], tags: ['Physical testing', 'Instrumentation', 'Model correlation'], confidential: true, homeOrder: 3,

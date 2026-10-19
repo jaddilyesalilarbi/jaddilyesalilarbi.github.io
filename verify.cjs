@@ -239,49 +239,102 @@ assert(!files.some(file => fs.readFileSync(path.join(root,file),'utf8').includes
 const structuralCase = fs.readFileSync(path.join(root,'work/solar-boat-structural-fea/index.html'),'utf8');
 assert(structuralCase.includes('class="case-study"'), 'Structural FEA must render as a substantial case study');
 assert(structuralCase.includes('<h1>Full-Vessel Composite Structural Analysis</h1>'), 'Structural FEA needs a project-specific title');
-for (const id of ['challenge','responsibility','approach','load-cases','composite-assessment','physical-testing','manufacturing-outcome','takeaways']) {
+for (const id of ['challenge','what-i-did','analysis-approach','physical-testing','outcome']) {
   assert(structuralCase.includes(`id="${id}"`), `Missing Structural FEA case-study section: ${id}`);
 }
-for (const fact of ['planing', 'flight', 'crash', 'slamming', 'immersion', 'pseudo-strut', 'pseudo-rudder', 'Tsai-Wu', '18.8 mm', '0.90 mm', '0.92 mm', 'NTPT']) {
+for (const fact of [
+  'EPFL Solar Boat was developing a full-scale composite hydrofoil boat from detailed design through manufacturing.',
+  'I was responsible for assessing the structure as a complete system and helping define laminate designs before production.',
+  'Built and maintained a full-vessel composite model covering the hull, internal structure, floats, foil wells and appendages.',
+  'Defined laminate zones and stacking sequences.',
+  'Assessed planing, flight, crash, slamming and immersion load cases.',
+  'Evaluated composite failure using Tsai-Wu criteria.',
+  'Checked mesh convergence and investigated local numerical singularities.',
+  'Iterated laminate and structural designs with the team before manufacturing.',
+  'The model was used to evaluate global stiffness, load transfer and composite margins across the complete vessel rather than analysing isolated components independently.',
+  'Local reinforcement, laminate definition and structural interfaces were updated as the design evolved.',
+  'Four-point bending tests provided a direct comparison between simulation and physical measurements on two documented configurations.',
+  '20.0 mm', '18.8 mm', '6.0%', '0.90 mm', '0.92 mm', '2.2%',
+  'The resulting laminate and structural design progressed to manufacturing by EPFL Solar Boat and NTPT.'
+]) {
   assert(structuralCase.includes(fact), `Missing Structural FEA evidence: ${fact}`);
 }
-for (const fact of ['approximately 7 m', '20.0 mm', '6.0%', 'What this project demonstrates']) {
-  assert(structuralCase.includes(fact), `Missing Structural FEA refinement: ${fact}`);
-}
 assert(structuralCase.includes('<table class="test-comparison">'), 'Physical comparison must use a compact table');
-assert.equal((structuralCase.match(/class="project-proof"/g) || []).length, 3, 'Project synthesis must contain three compact proofs');
+for (const removed of ['What this project demonstrates', 'Load cases &amp; load transfer', 'Composite assessment &amp; numerical credibility', 'Project context &amp; engineering challenge']) {
+  assert(!structuralCase.includes(removed), `Redundant Structural FEA section remains: ${removed}`);
+}
 assert(!/This wording is deliberate|colourful result plot|Reading the result therefore|required more than locating the highest contour/.test(structuralCase), 'Editorial or repetitive commentary leaked into public copy');
 assert(!/281,000|120 composite surfaces|71 surfaces|50 structural volumes|48 volumes|120 laminates/.test(structuralCase), 'Disputed model-size metrics must remain unpublished');
 const caseStudyHtml = structuralCase.match(/<article class="case-study">([\s\S]*?)<\/article>/)?.[1] || '';
 const caseStudyText = caseStudyHtml.replace(/<[^>]+>/g, ' ').replace(/&(?:amp|lt|gt|quot|#39);/g, ' ').replace(/\s+/g, ' ').trim();
 const caseStudyWords = caseStudyText.split(' ').filter(Boolean).length;
-assert(caseStudyWords >= 700 && caseStudyWords <= 850, `Structural FEA refinement depth: ${caseStudyWords} words`);
+assert(caseStudyWords >= 180 && caseStudyWords <= 260, `Structural FEA CV-style depth: ${caseStudyWords} words`);
 assert(!/did not validate every|rather than numerical artefacts|rather than adding material uniformly/.test(structuralCase), 'Structural FEA still contains defensive or heavy wording');
 const remainingCaseStudies = {
   'hydrogen-integration': {
     title: 'Hydrogen Energy System Integration',
     variant: 'hydrogen',
-    sections: ['integration-challenge', 'integration-constraints', 'layout-supports', 'stability-workflow', 'support-sizing', 'integration-tradeoffs', 'manufacturing-outcome'],
-    evidence: ['3DEXPERIENCE', 'MATLAB', 'Tsai-Wu', 'centre of gravity', 'cable routing', 'ventilation', 'maintenance access', 'I iterated the component layout', 'The final integration design and support structures progressed to manufacturing.'],
-    minimumWords: 400,
+    sections: ['challenge', 'what-i-did', 'main-tradeoffs', 'outcome'],
+    evidence: [
+      'EPFL Solar Boat needed to integrate a hydrogen energy system into an existing composite vessel without compromising structure, stability, installation or maintenance access.',
+      'The fuel-cell system, storage, supports and surrounding equipment had to work as a single mechanical integration problem.',
+      'Developed the equipment layout and mechanical integration architecture in 3DEXPERIENCE.',
+      'Designed mounting supports and assessed stiffness and load transfer.',
+      'Used MATLAB stability calculations to compare component positions and mass distribution.',
+      'Integrated routing, ventilation and maintenance-access constraints.',
+      'Iterated the layout across CAD, structural analysis, stability and installation requirements.',
+      'Component position affected both available space and vessel balance.',
+      'Mounting structures had to carry the equipment without blocking installation or maintenance.',
+      'Cables, ventilation and surrounding systems had to coexist with structural interfaces.',
+      'The final integration layout and support structures progressed to manufacturing.'
+    ],
+    minimumWords: 130,
+    maximumWords: 210,
     forbidden: /230 kg|207 kg|63 kW|60 kW|340 L|350 bar|437\.5 bar|525 bar|787\.5 bar|commissioned|certified/i
   },
   'navier-structural-fea': {
     title: 'Hydrofoil Structural Analysis',
     variant: 'hydrofoil',
-    sections: ['structural-question', 'analysis-responsibility', 'nonlinear-analysis', 'assembly-interpretation', 'design-decision'],
-    evidence: ['approximately 1.5 m', 'approximately 2 m', '3DEXPERIENCE', 'nonlinear', 'composite', 'boundary conditions', 'increased payload requirement', 'The analysis supported retaining the existing appendage design for the increased payload requirement.'],
-    minimumWords: 300,
-    maximumWords: 430,
+    sections: ['structural-question', 'what-i-did', 'analysis-approach', 'outcome'],
+    evidence: [
+      'Navier needed to determine whether the existing hydrofoil appendages could support an increased payload requirement.',
+      'The assembly combines foils approximately 1.5 m wide with struts approximately 2 m long, so deformation and load transfer had to be assessed at assembly level.',
+      'Prepared and ran nonlinear structural models in 3DEXPERIENCE.',
+      'Analysed the foil, strut and mechanical interfaces as a complete assembly.',
+      'Evaluated stiffness, deformation and composite response.',
+      'Checked sensitivity to geometry, laminate properties, applied loads and boundary conditions.',
+      'Interpreted the results to support the retain-or-redesign decision.',
+      'Modelled the structural form and interfaces governing assembly stiffness.',
+      'Used laminate properties and orientations to assess stiffness and structural response.',
+      'Applied loads through the foil, strut and connections.',
+      'Matched the constraints to the physical support of the assembly.',
+      'The analysis supported retaining the existing appendage design for the increased payload requirement.'
+    ],
+    minimumWords: 145,
+    maximumWords: 220,
     forbidden: /exact payload|certified|universally validated|proven safe under all conditions/i
   },
   'navier-test-correlation': {
     title: 'Simulation / Test Correlation',
     variant: 'correlation',
-    sections: ['correlation-question', 'prediction-method', 'uncertainty', 'testing-context', 'engineering-conclusion', 'next-evidence'],
-    evidence: ['I improved the deflection prediction and identified the data gaps preventing a reliable safety-factor estimate.', 'The available measurements were insufficient to determine a precise structural safety factor.', 'geometry', 'material properties', 'applied loads', 'boundary conditions', 'measurement', 'strain gauges', 'load cells', 'DAQ', 'waterproof sensor housings'],
-    minimumWords: 400,
-    forbidden: /87%|84%|approximately 3%|general accuracy guarantee/i
+    sections: ['correlation-question', 'what-i-did', 'physical-evidence', 'engineering-conclusion'],
+    evidence: [
+      'Simulation and physical measurements showed a large discrepancy in hydrofoil deflection.',
+      'The objective was to understand the source of the error, improve the prediction method and determine whether the available data supported a reliable structural safety-factor estimate.',
+      'Reconstructed the calculation chain behind the predicted deflection.',
+      'Improved the internal physics-based deflection method.',
+      'Compared the revised prediction with physical measurements.',
+      'Investigated uncertainty in geometry, material properties, applied loads, boundary conditions and measurements.',
+      'Identified the additional inputs required for a reliable safety-factor estimate.',
+      'The study combined structural testing with physical load and deflection measurements, strain gauges and data acquisition.',
+      'The comparison between predicted and measured behaviour was used to distinguish modelling limitations from uncertainty in the available inputs.',
+      'The revised method substantially improved agreement between predicted and measured deflection.',
+      'The available measurements were insufficient to determine a precise structural safety factor.',
+      'The study identified the geometry, material, load, boundary-condition and measurement data that required better characterisation before calculating one.'
+    ],
+    minimumWords: 145,
+    maximumWords: 230,
+    forbidden: /87%|84%|approximately 3%|general accuracy guarantee|proven safe|precise safety factor was obtained/i
   },
   'range-extender-integration': {
     title: 'Range Extender Integration',
@@ -326,9 +379,21 @@ const rangeExtenderCase = fs.readFileSync(path.join(root, 'work/range-extender-i
 for (const removed of ['The development loop', 'Packaging, interfaces and protection', 'Drawings, suppliers and assembly feedback']) {
   assert(!rangeExtenderCase.includes(removed), `Redundant Range Extender section remains: ${removed}`);
 }
+const hydrofoilCase = fs.readFileSync(path.join(root, 'work/navier-structural-fea/index.html'), 'utf8');
+for (const removed of ['My analysis responsibility', 'Nonlinear composite analysis', 'Reading the appendage as an assembly', 'Simulation to design decision']) {
+  assert(!hydrofoilCase.includes(removed), `Redundant Hydrofoil section remains: ${removed}`);
+}
+const hydrogenCase = fs.readFileSync(path.join(root, 'work/hydrogen-integration/index.html'), 'utf8');
+for (const removed of ['The integration challenge', 'A coupled constraint system', 'Layout and mechanical supports', 'Mass distribution and stability', 'Structural sizing of the supports', 'Integration trade-offs', 'Design iteration and manufacturing outcome']) {
+  assert(!hydrogenCase.includes(removed), `Redundant Hydrogen section remains: ${removed}`);
+}
+const correlationCase = fs.readFileSync(path.join(root, 'work/navier-test-correlation/index.html'), 'utf8');
+for (const removed of ['Improving the prediction method', 'What controlled the uncertainty?', 'Inputs needed for a safety-factor estimate']) {
+  assert(!correlationCase.includes(removed), `Redundant Correlation section remains: ${removed}`);
+}
 const dist = path.join(root, 'dist');
 const publicFiles = fs.readdirSync(dist,{recursive:true,withFileTypes:true}).filter(e => e.isFile()).map(e => path.relative(dist,path.join(e.parentPath || e.path,e.name)).split(path.sep).join('/'));
-const assets = new Set(['site.css','site.js','CNAME','assets/qr.png']);
+const assets = new Set(['site.css','site.js','CNAME','assets/qr.png','assets/solar-boat.png']);
 for(const p of data.projects) {
   if(p.media?.src) {assets.add(p.media.src);(p.media.srcset||[]).forEach(s=>assets.add(s));}
   if(p.editorial?.caseStudy?.vesselVisual?.src) assets.add(p.editorial.caseStudy.vesselVisual.src);
