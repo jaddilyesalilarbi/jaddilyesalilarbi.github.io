@@ -62,7 +62,7 @@ module.exports = {
         summary: 'Mechanical engineering on pre-series hydrofoil boats, spanning subsystem design, integration, composite structures, production support, testing and validation.',
         supporting: 'Worked directly on boats and hardware alongside engineers, technicians and suppliers, using manufacturing, assembly and test feedback to inform design decisions.',
         missions: [
-          { id: 'navier-01', text: 'Owned 15+ mechanical parts and subsystems from CAD through manufacturing, assembly and test.', tags: ['design-integration'], visibility: 'summary' },
+          { id: 'navier-01', text: 'Owned 15+ mechanical parts and subsystems from CAD through manufacturing, assembly and test.', tags: ['design-integration', 'manufacturing-assembly'], visibility: 'summary' },
           { id: 'navier-02', text: 'Integrated a marine range extender: packaging, mounts, sealing, drawings and supplier follow-up.', tags: ['design-integration'], visibility: 'summary' },
           { id: 'navier-03', text: 'Ran nonlinear FEA on full-scale composite hydrofoils (~1.5 m foils, ~2 m struts).', tags: ['structural-fea'], visibility: 'summary' },
           { id: 'navier-04', text: 'Checked composite FEA with independent CLT and Tsai-Wu / Hashin calculations.', tags: ['structural-fea'], visibility: 'detail' },
@@ -87,7 +87,7 @@ module.exports = {
         supporting: 'Progressed from hands-on propulsion and composite manufacturing into system integration and technical leadership.',
         missions: [
           { id: 'solar-01', text: 'Led a 12-person Mechanical & Hydrodynamics team across foils, propulsion, structures and maintenance.', tags: ['leadership-teaching'], visibility: 'summary' },
-          { id: 'solar-02', text: 'Built and validated the full-vessel composite FEA model; bending tests differed by 6.0% and 2.2%.', tags: ['structural-fea', 'testing-validation'], visibility: 'summary' },
+          { id: 'solar-02', text: 'Developed a composite FEA model of the entire ship, including the hull and appendages, and validated it through bending tests that showed deviations of 6.0% and 2.2%.', tags: ['structural-fea', 'testing-validation'], visibility: 'summary' },
           { id: 'solar-03', text: 'Defined laminate architectures and released 70+ composite parts for manufacturing.', tags: ['structural-fea', 'manufacturing-assembly'], visibility: 'detail' },
           { id: 'solar-04', text: 'Manufactured full-scale carbon structures: lay-up, vacuum bagging, curing, demoulding and bonding.', tags: ['manufacturing-assembly'], visibility: 'summary' },
           { id: 'solar-05', text: 'Integrated the fuel-cell and hydrogen-storage system: layout, supports, routing, access and stability.', tags: ['design-integration'], visibility: 'summary' },
