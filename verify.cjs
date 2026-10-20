@@ -15,31 +15,58 @@ assert.equal(ids(data.projects).size, 5);
 assert.equal(ids(data.expertise).size, 5);
 assert(data.resumePage, 'Missing structured Resume content');
 const resumeSkillIds = ids(data.resumePage.skills);
-assert.equal(resumeSkillIds.size, 6, 'Resume must expose exactly six unique skills');
-assert.deepEqual(data.resumePage.skills.map(skill => skill.id), ['mechanical-design', 'systems-integration', 'structural-fea', 'manufacturing-assembly', 'testing-instrumentation', 'leadership-teaching']);
+assert.equal(resumeSkillIds.size, 5, 'Resume must expose exactly five unique skills');
+assert.deepEqual(data.resumePage.skills.map(skill => skill.id), ['design-integration', 'structural-fea', 'testing-validation', 'manufacturing-assembly', 'leadership-teaching']);
 const resumeMissions = data.resumePage.experiences.flatMap(experience => experience.missions);
 assert.equal(ids(resumeMissions).size, resumeMissions.length, 'Resume mission IDs must be unique');
+const expectedResumeMissionIds = {
+  'resume-navier': ['navier-01', 'navier-02', 'navier-03', 'navier-04', 'navier-05', 'navier-06', 'navier-07', 'navier-08'],
+  'resume-solar-boat': ['solar-01', 'solar-02', 'solar-03', 'solar-04', 'solar-05', 'solar-06', 'solar-07', 'solar-08'],
+  'resume-teaching': ['teaching-01', 'teaching-02']
+};
 const expectedResumeSummaries = {
-  'resume-navier': ['navier-hardware-ownership', 'navier-range-extender-integration', 'navier-hydrofoil-fea', 'navier-sim-test-correlation'],
-  'resume-solar-boat': ['solar-lead-team', 'solar-full-vessel-fea', 'solar-composite-manufacturing', 'solar-hydrogen-integration'],
-  'resume-teaching': ['teaching-theory', 'teaching-groups']
+  'resume-navier': ['navier-01', 'navier-02', 'navier-03', 'navier-05'],
+  'resume-solar-boat': ['solar-01', 'solar-02', 'solar-04', 'solar-05'],
+  'resume-teaching': ['teaching-01', 'teaching-02']
+};
+const expectedResumeMissionCopy = {
+  'navier-01': 'Owned 15+ mechanical parts and subsystems from CAD through manufacturing, assembly and test.',
+  'navier-02': 'Integrated a marine range extender: packaging, mounts, sealing, drawings and supplier follow-up.',
+  'navier-03': 'Ran nonlinear FEA on full-scale composite hydrofoils (~1.5 m foils, ~2 m struts).',
+  'navier-04': 'Checked composite FEA with independent CLT and Tsai-Wu / Hashin calculations.',
+  'navier-05': 'Compared simulation with physical measurements, improved deflection prediction and identified remaining data gaps.',
+  'navier-06': 'Built instrumented test setups with strain gauges, load/torque sensors and DAQ.',
+  'navier-07': 'Machined and assembled pre-series hardware; prepared BOM/kitting and assembly instructions.',
+  'navier-08': 'Supported on-water prototype testing and fed observed issues into design iterations.',
+  'solar-01': 'Led a 12-person Mechanical & Hydrodynamics team across foils, propulsion, structures and maintenance.',
+  'solar-02': 'Built and validated the full-vessel composite FEA model; bending tests differed by 6.0% and 2.2%.',
+  'solar-03': 'Defined laminate architectures and released 70+ composite parts for manufacturing.',
+  'solar-04': 'Manufactured full-scale carbon structures: lay-up, vacuum bagging, curing, demoulding and bonding.',
+  'solar-05': 'Integrated the fuel-cell and hydrogen-storage system: layout, supports, routing, access and stability.',
+  'solar-06': 'Developed a MATLAB stability model to evaluate vessel attitude and component placement.',
+  'solar-07': 'Designed torpedo propulsion hardware and sized its epicyclic gear train in KISSsoft.',
+  'solar-08': 'Assembled and maintained propulsion and mechanical hardware throughout the boat program.',
+  'teaching-01': 'Taught mechanics, thermodynamics and electromagnetism for four years.',
+  'teaching-02': 'Led exercise sessions, live corrections and groups of up to ~50 students; graded exams.'
 };
 for (const mission of resumeMissions) {
+  assert.equal(mission.text, expectedResumeMissionCopy[mission.id], `Incorrect Resume mission copy: ${mission.id}`);
   assert(['summary', 'detail'].includes(mission.visibility), `Invalid Resume visibility: ${mission.id}`);
   assert(mission.tags.length > 0, `Resume mission needs at least one skill: ${mission.id}`);
   mission.tags.forEach(tag => assert(resumeSkillIds.has(tag), `Unknown Resume skill tag ${tag}: ${mission.id}`));
 }
 assert.deepEqual(Object.fromEntries(data.resumePage.skills.map(skill => [skill.id, resumeMissions.filter(mission => mission.tags.includes(skill.id)).length])), {
-  'mechanical-design': 11,
-  'systems-integration': 15,
-  'structural-fea': 11,
-  'manufacturing-assembly': 10,
-  'testing-instrumentation': 8,
-  'leadership-teaching': 6
+  'design-integration': 5,
+  'structural-fea': 5,
+  'testing-validation': 4,
+  'manufacturing-assembly': 4,
+  'leadership-teaching': 3
 });
 for (const experience of data.resumePage.experiences) {
   assert(experience.missions.some(mission => mission.visibility === 'summary'), `Resume experience needs summary missions: ${experience.id}`);
-  assert(experience.missions.some(mission => mission.visibility === 'detail'), `Resume experience needs detail missions: ${experience.id}`);
+  if (experience.id === 'resume-teaching') assert(!experience.missions.some(mission => mission.visibility === 'detail'), 'Teaching must not contain collapsed missions');
+  else assert(experience.missions.some(mission => mission.visibility === 'detail'), `Resume experience needs detail missions: ${experience.id}`);
+  assert.deepEqual(experience.missions.map(mission => mission.id), expectedResumeMissionIds[experience.id], `Incorrect Resume mission set: ${experience.id}`);
   assert.deepEqual(experience.missions.filter(mission => mission.visibility === 'summary').map(mission => mission.id), expectedResumeSummaries[experience.id], `Incorrect Resume summary set: ${experience.id}`);
   (experience.relatedProjects || []).forEach(project => {
     assert(ids(data.projects).has(project.id), `Unknown Resume project: ${project.id}`);
@@ -87,10 +114,12 @@ const resumePage = fs.readFileSync(path.join(root, 'resume/index.html'), 'utf8')
 const siteCss = fs.readFileSync(path.join(root, 'site.css'), 'utf8');
 assert(resumePage.includes('<h1>Resume</h1>'));
 assert(resumePage.includes('Mechanical engineering across the hardware-development loop.'));
-assert(resumePage.includes('Select a skill to highlight where I applied it.'));
-assert.equal((resumePage.match(/data-skill="/g) || []).length, 6, 'Resume must render six skill controls');
-assert.equal((resumePage.match(/<details class="resume-native-details" data-resume-details>/g) || []).length, 3, 'Each Resume experience needs a native collapsed fallback');
+assert(resumePage.includes('Select a skill to highlight relevant experience.'));
+assert.equal((resumePage.match(/data-skill="/g) || []).length, 5, 'Resume must render five skill controls');
+assert.equal((resumePage.match(/<details class="resume-native-details" data-resume-details>/g) || []).length, 2, 'Only experiences with hidden missions need a native collapsed fallback');
 assert.equal((resumePage.match(/<details class="resume-native-details" data-resume-details open/g) || []).length, 0, 'Native Resume details must start collapsed');
+const resumeSkillsMarkup = resumePage.match(/<aside class="resume-skills"[\s\S]*?<\/aside>/)?.[0] || '';
+assert(!resumeSkillsMarkup.includes('<small>'), 'Resume skills must not render per-skill descriptions');
 for (const skill of data.resumePage.skills) {
   const count = resumeMissions.filter(mission => mission.tags.includes(skill.id)).length;
   assert(resumePage.includes(`data-skill="${skill.id}"`), `Missing Resume skill control: ${skill.id}`);
@@ -539,24 +568,24 @@ if (process.argv.includes('--browser')) {
     assert.equal(await page.locator('.project-row:visible').count(), 5);
     await page.setViewportSize({ width: 1600, height: 1000 });
     await page.goto(pathToFileURL(path.join(root, 'resume/index.html')).href);
-    assert.equal(await page.locator('[data-skill]').count(), 6);
+    assert.equal(await page.locator('[data-skill]').count(), 5);
     assert.deepEqual(await page.locator('[data-experience]').evaluateAll(experiences => experiences.map(experience => experience.querySelectorAll('[data-mission]:not([hidden])').length)), [4, 4, 2], 'Resume must start with exactly 4/4/2 visible missions');
     assert.equal(await page.locator('[data-mission]:visible').count(), 10, 'Resume must expose ten missions by default');
     assert.equal(await page.locator('[data-visibility="detail"]:visible').count(), 0, 'Resume detail missions must start collapsed with JavaScript');
-    assert.equal(await page.locator('[data-expand-experience]:visible').count(), 3);
-    assert.deepEqual(await page.locator('[data-expand-experience]').allTextContents().then(items => items.map(item => item.trim())), ['Show 10 more missions', 'Show 10 more missions', 'Show 2 more missions']);
+    assert.equal(await page.locator('[data-expand-experience]:visible').count(), 2);
+    assert.deepEqual(await page.locator('[data-expand-experience]').allTextContents().then(items => items.map(item => item.trim())), ['Show 4 more missions', 'Show 4 more missions']);
     const structuralSkill = page.locator('[data-skill="structural-fea"]');
     await structuralSkill.click();
     assert.equal(await structuralSkill.getAttribute('aria-pressed'), 'true');
-    assert.equal(await page.locator('[data-mission].is-match').count(), 11);
-    assert.equal(await page.locator('[data-mission].is-muted').count(), resumeMissions.length - 11);
-    assert(await page.locator('#navier-composite-verification').isVisible(), 'A matching detail mission must be revealed by the filter');
-    assert(await page.locator('#navier-hardware-ownership').isVisible(), 'A non-matching summary mission must remain visible');
+    assert.equal(await page.locator('[data-mission].is-match').count(), 5);
+    assert.equal(await page.locator('[data-mission].is-muted').count(), resumeMissions.length - 5);
+    assert(await page.locator('#navier-04').isVisible(), 'A matching detail mission must be revealed by the filter');
+    assert(await page.locator('#navier-01').isVisible(), 'A non-matching summary mission must remain visible');
     const mutedMission = page.locator('[data-mission].is-muted:visible').first();
     await mutedMission.evaluate(element => Promise.all(element.getAnimations().map(animation => animation.finished)));
     const mutedOpacity = Number(await mutedMission.evaluate(element => getComputedStyle(element).opacity));
     assert(mutedOpacity >= .35 && mutedOpacity <= .45, `Muted missions must remain readable at 35–45% opacity, got ${mutedOpacity}`);
-    assert((await page.locator('.resume-filter-status').textContent()).includes('11 relevant missions'));
+    assert((await page.locator('.resume-filter-status').textContent()).includes('5 relevant missions'));
     assert(await page.locator('[data-clear-resume-filter]').isVisible());
     await structuralSkill.click();
     assert.equal(await structuralSkill.getAttribute('aria-pressed'), 'false');
@@ -574,19 +603,19 @@ if (process.argv.includes('--browser')) {
     await navierExpand.click();
     assert.equal(await navierExpand.getAttribute('aria-expanded'), 'true');
     assert.equal((await navierExpand.textContent()).trim(), 'Show less');
-    assert.equal(await page.locator('#resume-navier [data-visibility="detail"]:visible').count(), 10);
+    assert.equal(await page.locator('#resume-navier [data-visibility="detail"]:visible').count(), 4);
     await navierExpand.click();
     assert.equal(await navierExpand.getAttribute('aria-expanded'), 'false');
-    assert.equal((await navierExpand.textContent()).trim(), 'Show 10 more missions');
-    await page.locator('[data-skill="testing-instrumentation"]').click();
+    assert.equal((await navierExpand.textContent()).trim(), 'Show 4 more missions');
+    await page.locator('[data-skill="testing-validation"]').click();
     await page.locator('[data-clear-resume-filter]').click();
     assert.equal(await page.locator('[data-skill][aria-pressed="true"]').count(), 0);
     assert.equal((await page.locator('.resume-filter-status').textContent()).trim(), 'No skill selected.');
-    assert.equal(await page.evaluate(() => document.activeElement?.dataset.skill), 'testing-instrumentation', 'Clear filter must restore focus to the active skill');
+    assert.equal(await page.evaluate(() => document.activeElement?.dataset.skill), 'testing-validation', 'Clear filter must restore focus to the active skill');
     await navierExpand.click();
     await structuralSkill.click();
     await page.locator('[data-clear-resume-filter]').click();
-    assert.equal(await page.locator('#resume-navier [data-visibility="detail"]:visible').count(), 10, 'Clearing a filter must preserve manual expansion');
+    assert.equal(await page.locator('#resume-navier [data-visibility="detail"]:visible').count(), 4, 'Clearing a filter must preserve manual expansion');
     await navierExpand.click();
     await structuralSkill.focus();
     assert(await structuralSkill.evaluate(element => element.matches(':focus')), 'Resume skill controls must accept keyboard focus');
@@ -632,20 +661,12 @@ if (process.argv.includes('--browser')) {
     });
     assert.equal(shortDesktopSidebar.overflowY, 'auto', 'Desktop Skills sidebar must scroll independently');
     assert.equal(shortDesktopSidebar.overflowX, 'hidden', 'Desktop Skills sidebar must not scroll horizontally');
-    assert(shortDesktopSidebar.scrollHeight > shortDesktopSidebar.clientHeight, 'A short desktop viewport must constrain the Skills sidebar');
+    assert(shortDesktopSidebar.scrollHeight <= shortDesktopSidebar.clientHeight + 1, `The Skills sidebar must not scroll unnecessarily when all five skills fit: ${JSON.stringify(shortDesktopSidebar)}`);
     assert(shortDesktopSidebar.scrollWidth <= shortDesktopSidebar.clientWidth + 1, 'Skills sidebar content must fit without horizontal overflow');
     assert(shortDesktopSidebar.maxHeight <= 620 - shortDesktopSidebar.top - 16, 'Skills sidebar must leave breathing room below the viewport');
     assert(shortDesktopSidebar.paddingRight >= 8, 'Skills sidebar must reserve space beside its scrollbar');
-    const bodyScrollBeforeSidebar = await page.evaluate(() => window.scrollY);
     await page.locator('.resume-skills-sticky').evaluate(element => { element.scrollTop = element.scrollHeight; });
-    const lastSkillVisibility = await page.locator('[data-skill]').last().evaluate(element => {
-      const sidebar = element.closest('.resume-skills-sticky').getBoundingClientRect();
-      const skill = element.getBoundingClientRect();
-      return { skillBottom: skill.bottom, sidebarBottom: sidebar.bottom, scrollTop: element.closest('.resume-skills-sticky').scrollTop };
-    });
-    assert(lastSkillVisibility.scrollTop > 0, 'The Skills sidebar must reach its final item');
-    assert(lastSkillVisibility.skillBottom <= lastSkillVisibility.sidebarBottom + 1, 'The final skill must be visible after scrolling');
-    assert.equal(await page.evaluate(() => window.scrollY), bodyScrollBeforeSidebar, 'Scrolling the Skills sidebar must not scroll the page');
+    assert.equal(await page.locator('.resume-skills-sticky').evaluate(element => element.scrollTop), 0, 'A fitting Skills sidebar must remain at scroll position zero');
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.evaluate(() => window.scrollTo(0, 0));
     const desktop1280Ratio = await page.locator('.resume-interactive').evaluate(element => {
@@ -723,9 +744,9 @@ if (process.argv.includes('--browser')) {
     assert.equal(await plain.locator('[data-mission]').count(), resumeMissions.length);
     assert.equal(await plain.locator('[data-mission]:visible').count(), 10, 'No-JS Resume must remain short by default');
     assert.equal(await plain.locator('[data-visibility="detail"]:visible').count(), 0, 'No-JS Resume details must start collapsed');
-    assert.equal(await plain.locator('[data-resume-details]').count(), 3, 'No-JS Resume must retain native detail controls');
+    assert.equal(await plain.locator('[data-resume-details]').count(), 2, 'No-JS Resume must retain native detail controls where needed');
     await plain.locator('#resume-navier [data-resume-details] > summary').click();
-    assert.equal(await plain.locator('#resume-navier [data-visibility="detail"]:visible').count(), 10, 'No-JS native control must reveal the complete experience detail');
+    assert.equal(await plain.locator('#resume-navier [data-visibility="detail"]:visible').count(), 4, 'No-JS native control must reveal the complete experience detail');
     assert(await plain.locator('.resume-skills').isHidden(), 'Inert Resume skills must be hidden without JavaScript');
     assert(await plain.locator('.resume-instruction').isHidden(), 'Interactive instruction must be hidden without JavaScript');
     assert.deepEqual(errors, []);

@@ -44,14 +44,13 @@ module.exports = {
       'Mechanical engineer working across design, systems integration, structural analysis, manufacturing and testing.',
       'Most of my work has been on full-scale physical systems — composite boats, hydrofoil structures, propulsion hardware and integrated equipment — carried from CAD and analysis into manufacturing, assembly, instrumentation and validation.'
     ],
-    instruction: 'Select a skill to highlight where I applied it.',
+    instruction: 'Select a skill to highlight relevant experience.',
     skills: [
-      { id: 'mechanical-design', name: 'Mechanical Design', description: 'Mechanical parts, packaging, interfaces and production-ready hardware.' },
-      { id: 'systems-integration', name: 'Systems Integration', description: 'Equipment layout, interfaces, routing, access and vehicle-level constraints.' },
-      { id: 'structural-fea', name: 'Structural Simulation / FEA', description: 'Nonlinear and composite analysis used to size, challenge and validate hardware.' },
-      { id: 'manufacturing-assembly', name: 'Manufacturing & Assembly', description: 'Composite production, machining, assembly and production support.' },
-      { id: 'testing-instrumentation', name: 'Testing & Instrumentation', description: 'Physical testing, sensors, DAQ and simulation-to-test correlation.' },
-      { id: 'leadership-teaching', name: 'Leadership & Teaching', description: 'Technical leadership, engineering coordination and teaching responsibility.' }
+      { id: 'design-integration', name: 'Design & Integration' },
+      { id: 'structural-fea', name: 'Structural Analysis / FEA' },
+      { id: 'testing-validation', name: 'Testing & Validation' },
+      { id: 'manufacturing-assembly', name: 'Manufacturing & Assembly' },
+      { id: 'leadership-teaching', name: 'Leadership & Teaching' }
     ],
     experiences: [
       {
@@ -63,20 +62,14 @@ module.exports = {
         summary: 'Mechanical engineering on pre-series hydrofoil boats, spanning subsystem design, integration, composite structures, production support, testing and validation.',
         supporting: 'Worked directly on boats and hardware alongside engineers, technicians and suppliers, using manufacturing, assembly and test feedback to inform design decisions.',
         missions: [
-          { id: 'navier-hardware-ownership', text: 'Owned 15+ mechanical parts and subsystems through CAD, sourcing, analysis, manufacturing, assembly, testing and design iteration.', tags: ['mechanical-design', 'systems-integration', 'manufacturing-assembly', 'testing-instrumentation'], visibility: 'summary' },
-          { id: 'navier-range-extender-integration', text: 'Designed and integrated key mechanical elements of a marine range-extender system, from packaging and interfaces through manufacturing release.', tags: ['mechanical-design', 'systems-integration'], visibility: 'summary' },
-          { id: 'navier-hydrofoil-fea', text: 'Performed nonlinear structural analyses on full-scale composite hydrofoil assemblies, including ~1.5 m foils and ~2 m struts.', tags: ['structural-fea'], visibility: 'summary' },
-          { id: 'navier-sim-test-correlation', text: 'Led simulation-to-test correlation work to investigate discrepancies across geometry, materials, loads, boundary conditions and measurements.', tags: ['structural-fea', 'testing-instrumentation'], visibility: 'summary' },
-          { id: 'navier-composite-access-hardware', text: 'Designed, sourced, manufactured and validated full-scale composite access hardware for technician access aboard the vessel.', tags: ['mechanical-design', 'structural-fea', 'manufacturing-assembly', 'testing-instrumentation'], visibility: 'detail' },
-          { id: 'navier-range-extender-packaging', text: 'Developed mounting interfaces and environmental-protection concepts for range-extender hardware in a constrained marine installation.', tags: ['mechanical-design', 'systems-integration'], visibility: 'detail' },
-          { id: 'navier-deflection-model', text: 'Refined a physics-based composite deflection model to improve prediction agreement with physical measurements.', tags: ['structural-fea', 'testing-instrumentation'], visibility: 'detail' },
-          { id: 'navier-composite-verification', text: 'Built independent laminate-verification calculations using Classical Laminate Theory and composite failure criteria to challenge FEA results.', tags: ['structural-fea'], visibility: 'detail' },
-          { id: 'navier-drawings-sourcing', text: 'Translated manufacturing, test and assembly feedback into design updates, 2D drawings and supplier-ready documentation.', tags: ['mechanical-design', 'systems-integration', 'manufacturing-assembly'], visibility: 'detail' },
-          { id: 'navier-test-bench', text: 'Built and supported instrumented mechanical test setups using load measurement, torque sensing and data acquisition.', tags: ['testing-instrumentation', 'manufacturing-assembly'], visibility: 'detail' },
-          { id: 'navier-strain-gauges', text: 'Implemented strain-gauge-based hydrofoil measurements, including sensor integration and waterproof protection for marine testing.', tags: ['testing-instrumentation', 'systems-integration'], visibility: 'detail' },
-          { id: 'navier-production-support', text: 'Supported pre-series production through BOM and kitting work, assembly procedures, workshop improvements and design-for-manufacturing updates.', tags: ['manufacturing-assembly', 'systems-integration'], visibility: 'detail' },
-          { id: 'navier-hands-on-assembly', text: 'Performed hands-on fitting, machining and assembly work to resolve design issues directly on pre-series hardware.', tags: ['manufacturing-assembly', 'mechanical-design'], visibility: 'detail' },
-          { id: 'navier-field-testing', text: 'Supported prototype and on-water testing, feeding operating and assembly observations back into hardware iterations.', tags: ['testing-instrumentation', 'systems-integration', 'manufacturing-assembly'], visibility: 'detail' }
+          { id: 'navier-01', text: 'Owned 15+ mechanical parts and subsystems from CAD through manufacturing, assembly and test.', tags: ['design-integration'], visibility: 'summary' },
+          { id: 'navier-02', text: 'Integrated a marine range extender: packaging, mounts, sealing, drawings and supplier follow-up.', tags: ['design-integration'], visibility: 'summary' },
+          { id: 'navier-03', text: 'Ran nonlinear FEA on full-scale composite hydrofoils (~1.5 m foils, ~2 m struts).', tags: ['structural-fea'], visibility: 'summary' },
+          { id: 'navier-04', text: 'Checked composite FEA with independent CLT and Tsai-Wu / Hashin calculations.', tags: ['structural-fea'], visibility: 'detail' },
+          { id: 'navier-05', text: 'Compared simulation with physical measurements, improved deflection prediction and identified remaining data gaps.', tags: ['structural-fea', 'testing-validation'], visibility: 'summary' },
+          { id: 'navier-06', text: 'Built instrumented test setups with strain gauges, load/torque sensors and DAQ.', tags: ['testing-validation'], visibility: 'detail' },
+          { id: 'navier-07', text: 'Machined and assembled pre-series hardware; prepared BOM/kitting and assembly instructions.', tags: ['manufacturing-assembly'], visibility: 'detail' },
+          { id: 'navier-08', text: 'Supported on-water prototype testing and fed observed issues into design iterations.', tags: ['testing-validation'], visibility: 'detail' }
         ],
         relatedProjects: [
           { id: 'navier-structural-fea', label: 'Hydrofoil Structural Analysis' },
@@ -93,20 +86,14 @@ module.exports = {
         summary: 'Engineering and technical leadership spanning propulsion hardware, composite structures, full-scale manufacturing and hydrogen-system integration.',
         supporting: 'Progressed from hands-on propulsion and composite manufacturing into system integration and technical leadership.',
         missions: [
-          { id: 'solar-lead-team', text: 'Led a 12-person Mechanical & Hydrodynamics team developing foils, propulsion systems and structural solutions.', tags: ['leadership-teaching', 'systems-integration'], visibility: 'summary' },
-          { id: 'solar-full-vessel-fea', text: 'Built and iterated a full-vessel composite structural model covering the hull, internal structure, foils and appendages.', tags: ['structural-fea'], visibility: 'summary' },
-          { id: 'solar-fea-test-validation', text: 'Validated composite FEA against four-point-bending tests, with 6.0% and 2.2% displacement differences in the documented configurations.', tags: ['structural-fea', 'testing-instrumentation'], visibility: 'detail' },
-          { id: 'solar-composite-manufacturing', text: 'Manufactured full-scale carbon-fiber structures through lay-up, vacuum bagging, curing, demoulding and bonding.', tags: ['manufacturing-assembly'], visibility: 'summary' },
-          { id: 'solar-hydrogen-integration', text: 'Integrated a fuel-cell and hydrogen-storage system while balancing structural, stability, accessibility and safety constraints.', tags: ['mechanical-design', 'systems-integration', 'structural-fea'], visibility: 'summary' },
-          { id: 'solar-lead-coordination', text: 'Coordinated technical work across foils, propulsion, structures, hydrodynamics and maintenance, managing interfaces between parallel workstreams.', tags: ['leadership-teaching', 'systems-integration'], visibility: 'detail' },
-          { id: 'solar-torpedo-design', text: 'Engineered torpedo propulsion hardware, including gearbox housing, packaging and mechanical integration.', tags: ['mechanical-design', 'systems-integration'], visibility: 'detail' },
-          { id: 'solar-kisssoft', text: 'Sized an epicyclic gear train for torpedo propulsion using KISSsoft.', tags: ['mechanical-design'], visibility: 'detail' },
-          { id: 'solar-fea-methodology', text: 'Used mesh convergence, model simplification and singularity diagnosis to distinguish numerical artifacts from physical structural limits.', tags: ['structural-fea'], visibility: 'detail' },
-          { id: 'solar-laminate-definition', text: 'Defined composite laminate architectures and released 70+ parts for manufacture.', tags: ['structural-fea', 'manufacturing-assembly'], visibility: 'detail' },
-          { id: 'solar-hydrogen-supports', text: 'Designed and structurally assessed composite supports for hydrogen-energy hardware under vessel load cases.', tags: ['mechanical-design', 'systems-integration', 'structural-fea'], visibility: 'detail' },
-          { id: 'solar-stability-matlab', text: 'Developed a MATLAB stability model to evaluate vessel attitude and support equipment-placement decisions.', tags: ['systems-integration'], visibility: 'detail' },
-          { id: 'solar-routing-access', text: 'Integrated cable routing, ventilation and maintenance-access requirements into the mechanical layout.', tags: ['mechanical-design', 'systems-integration'], visibility: 'detail' },
-          { id: 'solar-maintenance-hands-on', text: 'Performed hands-on assembly and maintenance work on propulsion and mechanical hardware throughout the boat-development program.', tags: ['manufacturing-assembly', 'systems-integration'], visibility: 'detail' }
+          { id: 'solar-01', text: 'Led a 12-person Mechanical & Hydrodynamics team across foils, propulsion, structures and maintenance.', tags: ['leadership-teaching'], visibility: 'summary' },
+          { id: 'solar-02', text: 'Built and validated the full-vessel composite FEA model; bending tests differed by 6.0% and 2.2%.', tags: ['structural-fea', 'testing-validation'], visibility: 'summary' },
+          { id: 'solar-03', text: 'Defined laminate architectures and released 70+ composite parts for manufacturing.', tags: ['structural-fea', 'manufacturing-assembly'], visibility: 'detail' },
+          { id: 'solar-04', text: 'Manufactured full-scale carbon structures: lay-up, vacuum bagging, curing, demoulding and bonding.', tags: ['manufacturing-assembly'], visibility: 'summary' },
+          { id: 'solar-05', text: 'Integrated the fuel-cell and hydrogen-storage system: layout, supports, routing, access and stability.', tags: ['design-integration'], visibility: 'summary' },
+          { id: 'solar-06', text: 'Developed a MATLAB stability model to evaluate vessel attitude and component placement.', tags: ['design-integration'], visibility: 'detail' },
+          { id: 'solar-07', text: 'Designed torpedo propulsion hardware and sized its epicyclic gear train in KISSsoft.', tags: ['design-integration'], visibility: 'detail' },
+          { id: 'solar-08', text: 'Assembled and maintained propulsion and mechanical hardware throughout the boat program.', tags: ['manufacturing-assembly'], visibility: 'detail' }
         ],
         relatedProjects: [
           { id: 'solar-boat-structural-fea', label: 'Full-Vessel Composite Structural Analysis' },
@@ -121,10 +108,8 @@ module.exports = {
         location: '',
         summary: 'Mechanics · Thermodynamics · Electromagnetism',
         missions: [
-          { id: 'teaching-theory', text: 'Taught mechanics, thermodynamics and electromagnetism through theory and exercise sessions.', tags: ['leadership-teaching'], visibility: 'summary' },
-          { id: 'teaching-exercises', text: 'Led exercise sessions and live problem corrections, explaining engineering and physics methods step by step.', tags: ['leadership-teaching'], visibility: 'detail' },
-          { id: 'teaching-groups', text: 'Independently taught student groups of up to ~50, including live corrections and assessment.', tags: ['leadership-teaching'], visibility: 'summary' },
-          { id: 'teaching-exam-grading', text: 'Graded examinations and assessed student work in core physics subjects.', tags: ['leadership-teaching'], visibility: 'detail' }
+          { id: 'teaching-01', text: 'Taught mechanics, thermodynamics and electromagnetism for four years.', tags: ['leadership-teaching'], visibility: 'summary' },
+          { id: 'teaching-02', text: 'Led exercise sessions, live corrections and groups of up to ~50 students; graded exams.', tags: ['leadership-teaching'], visibility: 'summary' }
         ],
         relatedProjects: []
       }
