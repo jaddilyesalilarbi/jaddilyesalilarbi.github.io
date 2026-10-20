@@ -7,7 +7,9 @@ const { pathToFileURL } = require('node:url');
 const data = require('./content/site.cjs');
 const root = __dirname;
 assert(fs.existsSync(path.join(root, 'resume/index.html')), 'Missing generated Resume route');
-const files = ['index.html', '404.html', ...['work','expertise','services','about','resume','contact'].map(p => `${p}/index.html`), ...data.projects.map(p => `work/${p.id}/index.html`)];
+const indexableFiles = ['index.html', '404.html', ...['work','expertise','services','resume','contact'].map(p => `${p}/index.html`), ...data.projects.map(p => `work/${p.id}/index.html`)];
+const redirectFiles = ['about/index.html'];
+const files = [...indexableFiles, ...redirectFiles];
 const ids = items => new Set(items.map(i => i.id));
 assert.equal(ids(data.projects).size, 5);
 assert.equal(ids(data.expertise).size, 5);
@@ -58,7 +60,7 @@ for (const p of data.projects) {
   if (p.confidential) assert(!p.media.src || p.media.representative || p.media.approvedPublic, `Restricted visual: ${p.id}`);
 }
 data.services.forEach(s => s.projects.forEach(id => assert(ids(data.projects).has(id))));
-for (const file of files) {
+for (const file of indexableFiles) {
   const html = fs.readFileSync(path.join(root, file), 'utf8');
   assert.equal((html.match(/<h1[ >]/g) || []).length, 1, `Single H1: ${file}`);
   assert(html.includes('name="description"'));
@@ -66,7 +68,12 @@ for (const file of files) {
   assert(!/Structural Engineering|Validation &amp; Testing|Mechanical Development/.test(html), `Outdated expertise label: ${file}`);
   assert(html.includes('header-cv'));
   assert(html.includes('>Resume</a>'), `Resume navigation missing: ${file}`);
+  const primaryNavigation = html.match(/<nav id="main-nav"[\s\S]*?<\/nav>/)?.[0] || '';
+  assert(!primaryNavigation.includes('>About</a>'), `About must be removed from primary navigation: ${file}`);
+  assert(primaryNavigation.indexOf('>Services</a>') < primaryNavigation.indexOf('>Resume</a>'), `Resume must follow Services: ${file}`);
+  assert(primaryNavigation.indexOf('>Resume</a>') < primaryNavigation.indexOf('>Contact</a>'), `Resume must precede Contact: ${file}`);
   assert(!html.includes('Request CV'));
+  assert(!/href="[^"]*about\/index\.html/.test(html), `Internal About link remains: ${file}`);
   for (const match of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
     const ref = match[1];
     if (/^(mailto:|tel:|https?:)/.test(ref)) continue;
@@ -104,20 +111,39 @@ assert(resumePage.includes('>Download CV</a>'));
 assert(resumePage.includes(`href="../${data.person.resume}"`));
 assert(resumePage.includes(`href="${data.person.linkedin}"`));
 assert(resumePage.includes('href="../contact/index.html"'));
+const expectedResumeIntro = [
+  'Mechanical engineer working across design, systems integration, structural analysis, manufacturing and testing.',
+  'Most of my work has been on full-scale physical systems — composite boats, hydrofoil structures, propulsion hardware and integrated equipment — carried from CAD and analysis into manufacturing, assembly, instrumentation and validation.'
+];
+assert.deepEqual(data.resumePage.intro, expectedResumeIntro, 'Resume introduction must use the approved two-paragraph narrative');
+assert.equal((resumePage.match(/class="resume-intro"/g) || []).length, 2, 'Resume hero must render two introduction paragraphs');
+expectedResumeIntro.forEach(paragraph => assert(resumePage.includes(paragraph), `Missing Resume introduction paragraph: ${paragraph}`));
+const navierSupport = 'Worked directly on boats and hardware alongside engineers, technicians and suppliers, using manufacturing, assembly and test feedback to inform design decisions.';
+const solarBoatSupport = 'Progressed from hands-on propulsion and composite manufacturing into system integration and technical leadership.';
+assert(resumePage.includes(`<p class="resume-experience-supporting">${navierSupport}</p>`), 'Missing Navier supporting context');
+assert(resumePage.includes(`<p class="resume-experience-supporting">${solarBoatSupport}</p>`), 'Missing EPFL Solar Boat supporting context');
+const renderedMissionLists = [...resumePage.matchAll(/<ul class="resume-missions"[^>]*>([\s\S]*?)<\/ul>/g)].map(match => match[1]);
+assert(renderedMissionLists.every(list => !list.includes(navierSupport)), 'Navier supporting context must not become a mission');
+assert(renderedMissionLists.every(list => !list.includes(solarBoatSupport)), 'Solar Boat supporting context must not become a mission');
 assert(!/84%|range-extender power|battery capacit|Navier safety factor|confidential load|internal test value/i.test(resumePage), 'Restricted Resume value leaked into public copy');
 assert(siteCss.includes(':focus-visible{outline:3px'), 'Visible keyboard focus styling must remain available');
 assert(siteCss.includes('@media(prefers-reduced-motion:reduce)'), 'Reduced-motion support must remain available');
 assert(resumePage.includes('<p class="resume-instruction" hidden>'), 'Interactive Resume instruction must stay hidden without JavaScript');
 assert(resumePage.includes('<aside class="resume-skills" aria-labelledby="resume-skills-title" hidden>'), 'Inert Resume skill controls must stay hidden without JavaScript');
-const aboutResume = fs.readFileSync(path.join(root, 'about/index.html'), 'utf8');
-assert(aboutResume.includes('Explore my complete experience and filter it by engineering skill.'));
-assert(aboutResume.includes('>View interactive resume</a>'));
-assert(aboutResume.includes('>Get CV</a>'));
+const aboutRedirect = fs.readFileSync(path.join(root, 'about/index.html'), 'utf8');
+assert(/http-equiv="refresh" content="0; url=\.\.\/resume\/index\.html"/i.test(aboutRedirect), 'Legacy About route must immediately redirect to Resume');
+assert(aboutRedirect.includes('<link rel="canonical" href="https://www.jadd-engineering.com/resume/">'), 'Legacy About route must canonicalize to Resume');
+assert(aboutRedirect.includes('<meta name="robots" content="noindex, follow">'), 'Legacy About route must not remain indexable');
+assert(aboutRedirect.includes('href="../resume/index.html"'), 'Legacy About redirect must provide a Resume fallback link');
+assert(!aboutRedirect.includes('15+ mechanical components and subsystems'), 'Legacy About content must not remain duplicated');
+assert(!aboutRedirect.includes('site-header'), 'Legacy About redirect must remain a minimal document');
 const home = fs.readFileSync(path.join(root,'index.html'),'utf8');
 assert(home.includes('Mechanical engineering<br class="desktop-break"> from design to testing.'));
 assert(home.includes('<h2>My Work</h2>'));
 assert(home.includes('<h2>Areas of Expertise</h2>'));
 assert(home.includes('<h2>Background</h2>'));
+assert(home.includes('href="resume/index.html">View resume</a>'), 'Home Background must link directly to Resume');
+assert(!home.includes('about/index.html'), 'Home must not retain an About link');
 assert(home.includes('View all projects'));
 assert(!/Selected work|Engineering in practice|Design, integration, analysis &amp; hands-on work|Working with physical systems|status-dot/.test(home));
 assert.equal((home.match(/>Get CV</g) || []).length, 2);
@@ -163,13 +189,13 @@ const publicProjectNames = [
   'Range Extender Integration'
 ];
 assert.deepEqual(data.projects.map(project => project.title), publicProjectNames, 'Projects must expose one consistent public name');
-for (const file of files) {
+for (const file of indexableFiles) {
   const html = fs.readFileSync(path.join(root,file),'utf8');
   assert(!html.includes('Swiss Solar Boat'), `Organisation naming must be consistent: ${file}`);
   assert(!html.includes('Structural FEA —'), `Old project title remains visible: ${file}`);
   assert(!html.includes('Structural Simulation / FEAMechanical Design'), `Concatenated expertise labels: ${file}`);
 }
-for (const section of ['work','expertise','services','about','contact']) {
+for (const section of ['work','expertise','services','resume','contact']) {
   const html = fs.readFileSync(path.join(root,section,'index.html'),'utf8');
   const heading = html.match(/<div class="page-heading[^"]*">([\s\S]*?)<\/div>/)?.[1] || '';
   assert(!heading.includes('<p class="meta">'), `Top page label must be removed: ${section}`);
@@ -199,19 +225,8 @@ assert.equal((servicesPage.match(/<h4>Typical deliverables<\/h4>/g) || []).lengt
 assert.equal((servicesPage.match(/class="deliverable-list"/g) || []).length, 4, 'Deliverables must render as readable lists');
 assert(!servicesPage.includes('Depending on the project'));
 
-const aboutPage = fs.readFileSync(path.join(root,'about/index.html'),'utf8');
-assert(aboutPage.includes('15+ mechanical components and subsystems'));
-assert(aboutPage.includes('Alameda, California'));
-assert(aboutPage.includes('managed a 12-person technical team'));
-assert(aboutPage.includes('Master of Science in Mechanical Engineering'));
-assert(aboutPage.includes('Bachelor of Science in Mechanical Engineering'));
-assert(aboutPage.includes('independently taught groups of up to 50 students'));
-for (const section of ['navier','solar-boat','education','teaching']) assert(aboutPage.includes(`id="${section}"`), `Missing About section: ${section}`);
-assert(aboutPage.indexOf('id="navier"') < aboutPage.indexOf('id="solar-boat"'));
-assert(aboutPage.indexOf('id="solar-boat"') < aboutPage.indexOf('id="education"'));
-assert(aboutPage.indexOf('id="education"') < aboutPage.indexOf('id="teaching"'));
-assert(!aboutPage.includes('Engineering approach.'), 'About must not end as a generic manifesto');
-assert(!aboutPage.includes('I am a mechanical engineer trained at EPFL'), 'About opening must not repeat the hero positioning');
+assert(expertisePage.includes('href="../resume/index.html#resume-solar-boat"'), 'Solar Boat expertise evidence must link to Resume');
+assert(expertisePage.includes('href="../resume/index.html#resume-navier"'), 'Navier expertise evidence must link to Resume');
 
 const contactPage = fs.readFileSync(path.join(root,'contact/index.html'),'utf8');
 assert(contactPage.includes(data.person.email), 'Contact email must remain visible');
@@ -222,7 +237,7 @@ assert(contactPage.includes('I usually reply faster on WhatsApp.'), 'WhatsApp re
 assert(contactPage.includes('src="../assets/qr.png"'), 'Contact page must display the website QR code');
 assert(contactPage.includes(data.person.linkedin), 'Contact page must use the central LinkedIn URL');
 assert(!contactPage.includes('Paris, France'), 'Contact page must not display Paris, France');
-for (const file of files) {
+for (const file of indexableFiles) {
   const html = fs.readFileSync(path.join(root,file),'utf8');
   const footer = html.match(/<footer[\s\S]*?<\/footer>/)?.[0] || '';
   assert(!footer.includes('Paris, France'), `Footer location must be removed: ${file}`);
@@ -500,7 +515,7 @@ if (process.argv.includes('--browser')) {
     page.on('pageerror', err => errors.push(err.message));
     for (const width of [320, 375, 768, 1440, 1920]) {
       await page.setViewportSize({ width, height: 1000 });
-      for (const file of files) {
+      for (const file of indexableFiles) {
         await page.goto(pathToFileURL(path.join(root, file)).href);
         assert(await page.locator('h1').isVisible(), `H1 invisible: ${file}`);
         assert(await page.locator('.header-cv').isVisible(), `CV inaccessible: ${width} ${file}`);
@@ -655,6 +670,9 @@ if (process.argv.includes('--browser')) {
     assert.equal(mobileResumeLayout.skillOverflow, 'auto');
     assert.equal(await page.locator('[data-resume] > *').first().getAttribute('class'), 'resume-skills', 'Mobile DOM order must match the visual skill-first order');
     assert.equal(await page.locator('[data-mission]:visible').count(), 10, 'Mobile must preserve the 4/4/2 default mission limit');
+    await page.goto(pathToFileURL(path.join(root, 'about/index.html')).href);
+    await page.waitForURL(url => url.pathname.replace(/\\/g, '/').endsWith('/resume/index.html'));
+    assert.equal(await page.locator('h1').textContent(), 'Resume', 'Legacy About navigation must land on Resume');
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(pathToFileURL(path.join(root, 'index.html')).href);
     const heroCv = page.locator('.hero-cv');
@@ -687,7 +705,7 @@ if (process.argv.includes('--browser')) {
     assert.equal(await page.locator('details').count(), 0);
     const out = path.join(root, '..', 'tmp', 'portfolio-v1-qa');
     fs.mkdirSync(out, { recursive: true });
-    for (const [file, width, name] of [['index.html',1440,'home-desktop'],['index.html',375,'home-mobile'],['resume/index.html',1440,'resume-desktop'],['resume/index.html',1280,'resume-desktop-1280'],['resume/index.html',390,'resume-mobile'],['work/navier-test-correlation/index.html',375,'case-mobile'],['work/navier-test-correlation/index.html',1440,'case-study'],['services/index.html',768,'services-tablet'],['about/index.html',1440,'about-desktop']]) {
+    for (const [file, width, name] of [['index.html',1440,'home-desktop'],['index.html',375,'home-mobile'],['resume/index.html',1440,'resume-desktop'],['resume/index.html',1280,'resume-desktop-1280'],['resume/index.html',390,'resume-mobile'],['work/navier-test-correlation/index.html',375,'case-mobile'],['work/navier-test-correlation/index.html',1440,'case-study'],['services/index.html',768,'services-tablet']]) {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto(pathToFileURL(path.join(root, file)).href);
       await page.locator('img').evaluateAll(async images => { await Promise.all(images.map(img => { img.loading = 'eager'; return img.decode(); })); });

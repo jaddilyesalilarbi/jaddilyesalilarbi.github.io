@@ -40,7 +40,10 @@ module.exports = {
   resumePage: {
     title: 'Resume',
     headline: 'Mechanical engineering across the hardware-development loop.',
-    intro: 'Mechanical engineer working across design, systems integration, structural analysis, manufacturing and testing. Experience on full-scale electric, hybrid and hydrogen marine hardware at Navier and EPFL Solar Boat, from CAD and FEA through manufacturing, assembly, instrumentation and validation.',
+    intro: [
+      'Mechanical engineer working across design, systems integration, structural analysis, manufacturing and testing.',
+      'Most of my work has been on full-scale physical systems — composite boats, hydrofoil structures, propulsion hardware and integrated equipment — carried from CAD and analysis into manufacturing, assembly, instrumentation and validation.'
+    ],
     instruction: 'Select a skill to highlight where I applied it.',
     skills: [
       { id: 'mechanical-design', name: 'Mechanical Design', description: 'Mechanical parts, packaging, interfaces and production-ready hardware.' },
@@ -58,6 +61,7 @@ module.exports = {
         period: 'Oct 2025 – Apr 2026',
         location: 'Alameda, California, USA',
         summary: 'Mechanical engineering on pre-series hydrofoil boats, spanning subsystem design, integration, composite structures, production support, testing and validation.',
+        supporting: 'Worked directly on boats and hardware alongside engineers, technicians and suppliers, using manufacturing, assembly and test feedback to inform design decisions.',
         missions: [
           { id: 'navier-hardware-ownership', text: 'Owned 15+ mechanical parts and subsystems through CAD, sourcing, analysis, manufacturing, assembly, testing and design iteration.', tags: ['mechanical-design', 'systems-integration', 'manufacturing-assembly', 'testing-instrumentation'], visibility: 'summary' },
           { id: 'navier-range-extender-integration', text: 'Designed and integrated key mechanical elements of a marine range-extender system, from packaging and interfaces through manufacturing release.', tags: ['mechanical-design', 'systems-integration'], visibility: 'summary' },
@@ -87,6 +91,7 @@ module.exports = {
         period: '2023 – 2025',
         location: 'Lausanne, Switzerland',
         summary: 'Engineering and technical leadership spanning propulsion hardware, composite structures, full-scale manufacturing and hydrogen-system integration.',
+        supporting: 'Progressed from hands-on propulsion and composite manufacturing into system integration and technical leadership.',
         missions: [
           { id: 'solar-lead-team', text: 'Led a 12-person Mechanical & Hydrodynamics team developing foils, propulsion systems and structural solutions.', tags: ['leadership-teaching', 'systems-integration'], visibility: 'summary' },
           { id: 'solar-full-vessel-fea', text: 'Built and iterated a full-vessel composite structural model covering the hull, internal structure, foils and appendages.', tags: ['structural-fea'], visibility: 'summary' },
