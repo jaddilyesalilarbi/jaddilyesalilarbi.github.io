@@ -522,7 +522,7 @@ if (process.argv.includes('--browser')) {
     }
     await page.locator('[data-filter="all"]').click();
     assert.equal(await page.locator('.project-row:visible').count(), 5);
-    await page.setViewportSize({ width: 1440, height: 1000 });
+    await page.setViewportSize({ width: 1600, height: 1000 });
     await page.goto(pathToFileURL(path.join(root, 'resume/index.html')).href);
     assert.equal(await page.locator('[data-skill]').count(), 6);
     assert.deepEqual(await page.locator('[data-experience]').evaluateAll(experiences => experiences.map(experience => experience.querySelectorAll('[data-mission]:not([hidden])').length)), [4, 4, 2], 'Resume must start with exactly 4/4/2 visible missions');
@@ -584,6 +584,12 @@ if (process.argv.includes('--browser')) {
     });
     assert(desktopResumeLayout.experienceX < desktopResumeLayout.skillsX);
     assert.equal(desktopResumeLayout.skillsPosition, 'sticky');
+    const resumeSectionHeadingGaps = await page.locator('.resume-education, .resume-toolset').evaluateAll(sections => sections.map(section => {
+      const heading = section.querySelector(':scope > h2').getBoundingClientRect();
+      const content = section.querySelector(':scope > h2 + *').getBoundingClientRect();
+      return content.top - heading.bottom;
+    }));
+    assert(resumeSectionHeadingGaps.every(gap => Math.abs(gap - 16) < 1), `Resume Education and Toolset heading gaps must both be 16px, got ${resumeSectionHeadingGaps}`);
     const desktopEducation = await page.locator('.resume-education-list article').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect()));
     assert(Math.abs(desktopEducation[0].y - desktopEducation[1].y) < 2, 'Education entries must sit side by side on desktop');
     const desktopToolset = await page.locator('.resume-toolset-grid article').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect()));
@@ -591,6 +597,40 @@ if (process.argv.includes('--browser')) {
     const resumeTop = await page.locator('.resume-interactive').evaluate(element => element.offsetTop);
     await page.evaluate(top => window.scrollTo(0, top + 420), resumeTop);
     await page.waitForFunction(() => Math.abs(document.querySelector('.resume-skills-sticky').getBoundingClientRect().top - 116) < 3);
+    await page.setViewportSize({ width: 1440, height: 620 });
+    await page.evaluate(top => window.scrollTo(0, top + 420), resumeTop);
+    await page.waitForFunction(() => Math.abs(document.querySelector('.resume-skills-sticky').getBoundingClientRect().top - 116) < 3);
+    const shortDesktopSidebar = await page.locator('.resume-skills-sticky').evaluate(element => {
+      const style = getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return {
+        clientHeight: element.clientHeight,
+        scrollHeight: element.scrollHeight,
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth,
+        maxHeight: parseFloat(style.maxHeight),
+        overflowX: style.overflowX,
+        overflowY: style.overflowY,
+        paddingRight: parseFloat(style.paddingRight),
+        top: rect.top
+      };
+    });
+    assert.equal(shortDesktopSidebar.overflowY, 'auto', 'Desktop Skills sidebar must scroll independently');
+    assert.equal(shortDesktopSidebar.overflowX, 'hidden', 'Desktop Skills sidebar must not scroll horizontally');
+    assert(shortDesktopSidebar.scrollHeight > shortDesktopSidebar.clientHeight, 'A short desktop viewport must constrain the Skills sidebar');
+    assert(shortDesktopSidebar.scrollWidth <= shortDesktopSidebar.clientWidth + 1, 'Skills sidebar content must fit without horizontal overflow');
+    assert(shortDesktopSidebar.maxHeight <= 620 - shortDesktopSidebar.top - 16, 'Skills sidebar must leave breathing room below the viewport');
+    assert(shortDesktopSidebar.paddingRight >= 8, 'Skills sidebar must reserve space beside its scrollbar');
+    const bodyScrollBeforeSidebar = await page.evaluate(() => window.scrollY);
+    await page.locator('.resume-skills-sticky').evaluate(element => { element.scrollTop = element.scrollHeight; });
+    const lastSkillVisibility = await page.locator('[data-skill]').last().evaluate(element => {
+      const sidebar = element.closest('.resume-skills-sticky').getBoundingClientRect();
+      const skill = element.getBoundingClientRect();
+      return { skillBottom: skill.bottom, sidebarBottom: sidebar.bottom, scrollTop: element.closest('.resume-skills-sticky').scrollTop };
+    });
+    assert(lastSkillVisibility.scrollTop > 0, 'The Skills sidebar must reach its final item');
+    assert(lastSkillVisibility.skillBottom <= lastSkillVisibility.sidebarBottom + 1, 'The final skill must be visible after scrolling');
+    assert.equal(await page.evaluate(() => window.scrollY), bodyScrollBeforeSidebar, 'Scrolling the Skills sidebar must not scroll the page');
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.evaluate(() => window.scrollTo(0, 0));
     const desktop1280Ratio = await page.locator('.resume-interactive').evaluate(element => {
@@ -605,10 +645,13 @@ if (process.argv.includes('--browser')) {
       const experience = element.querySelector('.resume-experience-column').getBoundingClientRect();
       const skills = element.querySelector('.resume-skills').getBoundingClientRect();
       const skillList = element.querySelector('.resume-skill-list');
-      return { experienceY: experience.y, skillsY: skills.y, skillsPosition: getComputedStyle(element.querySelector('.resume-skills-sticky')).position, skillOverflow: getComputedStyle(skillList).overflowX };
+      const sticky = getComputedStyle(element.querySelector('.resume-skills-sticky'));
+      return { experienceY: experience.y, skillsY: skills.y, skillsPosition: sticky.position, skillsOverflowY: sticky.overflowY, skillsMaxHeight: sticky.maxHeight, skillOverflow: getComputedStyle(skillList).overflowX };
     });
     assert(mobileResumeLayout.skillsY < mobileResumeLayout.experienceY);
     assert.equal(mobileResumeLayout.skillsPosition, 'static');
+    assert.equal(mobileResumeLayout.skillsOverflowY, 'visible');
+    assert.equal(mobileResumeLayout.skillsMaxHeight, 'none');
     assert.equal(mobileResumeLayout.skillOverflow, 'auto');
     assert.equal(await page.locator('[data-resume] > *').first().getAttribute('class'), 'resume-skills', 'Mobile DOM order must match the visual skill-first order');
     assert.equal(await page.locator('[data-mission]:visible').count(), 10, 'Mobile must preserve the 4/4/2 default mission limit');
